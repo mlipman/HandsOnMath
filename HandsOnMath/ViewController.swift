@@ -21,7 +21,7 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         mainExpression = getExpr()
-        println(mainExpression.description())
+        println(mainExpression.to_string())
         renderMainExpression()
     }
 
@@ -66,7 +66,7 @@ class ViewController: UIViewController {
     @IBAction func doit(sender: AnyObject) {
         expanded = !expanded
         mainExpression = getExpr()
-        println(mainExpression.description())
+        println(mainExpression.to_string())
         renderMainExpression()
     }
 
@@ -91,26 +91,31 @@ class ViewController: UIViewController {
     }
     */
 
-    func renderVariable(variable: Variable) -> UIView {
+    func renderVariable(variable: Variable) -> ExpressionView {
         var firstLabel = UILabel()
         firstLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         firstLabel.font = bigFont
         firstLabel.userInteractionEnabled = true
         firstLabel.text = variable.letter
-        return firstLabel
+        var exprView = ExpressionView()
+        exprView.expression = variable
+        exprView.consume(firstLabel)
+        return exprView
     }
 
-    func renderProductExp(prod: ProductExpression) -> UIView {
+    func renderProductExp(prod: ProductExpression) -> ExpressionView {
         let container = UIView()
         container.setTranslatesAutoresizingMaskIntoConstraints(false)
         if prod.elements.count == 0 {
-            return UIView()
+            var exprView = ExpressionView()
+            exprView.expression = ProductExpression(elems: [])
+            return exprView
         }
 
         var firstElemSet = false
         var prev = container
         for elem in prod.elements {
-            let currView: UIView
+            let currView: ExpressionView
             if let variable = elem as? Variable {
                 currView = renderVariable(variable)
             } else if let expExpr = elem as? ExponentExpression {
@@ -168,11 +173,14 @@ class ViewController: UIViewController {
                 "last": prev
             ])
         )
-        return container
+        var exprView = ExpressionView()
+        exprView.expression = prod
+        exprView.consume(container)
+        return exprView
     }
 
 
-    func renderSimpleExp(exp: ExponentExpression) -> UIView {
+    func renderSimpleExp(exp: ExponentExpression) -> ExpressionView {
         let container = UIView()
         container.setTranslatesAutoresizingMaskIntoConstraints(false)
         let simpleBase = exp.base as! Variable
@@ -214,7 +222,10 @@ class ViewController: UIViewController {
                 "exp": expLabel
             ])
         )
-        return container
+        var exprView = ExpressionView()
+        exprView.expression = exp
+        exprView.consume(container)
+        return exprView
     }
 }
 
