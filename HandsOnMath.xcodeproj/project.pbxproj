@@ -14,6 +14,8 @@
 		1D71DDEF1BDB844700B01C14 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D71DDEE1BDB844700B01C14 /* Images.xcassets */; };
 		1D71DDF21BDB844700B01C14 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1D71DDF01BDB844700B01C14 /* LaunchScreen.xib */; };
 		1D71DDFE1BDB844700B01C14 /* HandsOnMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D71DDFD1BDB844700B01C14 /* HandsOnMathTests.swift */; };
+		1D97AD691BDD24F1005BBADB /* goal1.png in Resources */ = {isa = PBXBuildFile; fileRef = 1D97AD681BDD24F1005BBADB /* goal1.png */; };
+		1D97AD6B1BDD2AF6005BBADB /* check.png in Resources */ = {isa = PBXBuildFile; fileRef = 1D97AD6A1BDD2AF6005BBADB /* check.png */; };
 		1DE3D3581BDBFDE400E8C234 /* ExpressionBrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */; };
 		1DE3D35A1BDCC40A00E8C234 /* ViewLogic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE3D3591BDCC40A00E8C234 /* ViewLogic.swift */; };
 /* End PBXBuildFile section */
@@ -40,6 +42,8 @@
 		1D71DDF71BDB844700B01C14 /* HandsOnMathTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HandsOnMathTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D71DDFC1BDB844700B01C14 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1D71DDFD1BDB844700B01C14 /* HandsOnMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandsOnMathTests.swift; sourceTree = "<group>"; };
+		1D97AD681BDD24F1005BBADB /* goal1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = goal1.png; path = ../../../../../Desktop/goal1.png; sourceTree = "<group>"; };
+		1D97AD6A1BDD2AF6005BBADB /* check.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = check.png; path = ../../../../../Desktop/check.png; sourceTree = "<group>"; };
 		1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressionBrain.swift; sourceTree = "<group>"; };
 		1DE3D3591BDCC40A00E8C234 /* ViewLogic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = ViewLogic.swift; path = ../ViewLogic.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -89,6 +93,8 @@
 				1D71DDEB1BDB844700B01C14 /* Main.storyboard */,
 				1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */,
 				1D71DDEE1BDB844700B01C14 /* Images.xcassets */,
+				1D97AD6A1BDD2AF6005BBADB /* check.png */,
+				1D97AD681BDD24F1005BBADB /* goal1.png */,
 				1D71DDF01BDB844700B01C14 /* LaunchScreen.xib */,
 				1D71DDE61BDB844700B01C14 /* HandsOnMath.xcdatamodeld */,
 				1D71DDE21BDB844700B01C14 /* Supporting Files */,
@@ -202,6 +208,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1D97AD691BDD24F1005BBADB /* goal1.png in Resources */,
+				1D97AD6B1BDD2AF6005BBADB /* check.png in Resources */,
 				1D71DDED1BDB844700B01C14 /* Main.storyboard in Resources */,
 				1D71DDF21BDB844700B01C14 /* LaunchScreen.xib in Resources */,
 				1D71DDEF1BDB844700B01C14 /* Images.xcassets in Resources */,

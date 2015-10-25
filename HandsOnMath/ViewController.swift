@@ -17,22 +17,13 @@ class ViewController: UIViewController {
     var mainExpression: Expression!
     var expanded = false
 
+    @IBOutlet weak var green: UIView!
+    @IBOutlet weak var check: UIImageView!
 
     override func viewDidLoad() {
-        var x = Variable(lttr: "x")
-        var y = Variable(lttr: "y")
-        var z = Variable(lttr: "z")
-/*
-        let a = ProductExpression(elems: [z,y])
-        ProductExpression(elems: [z, a]).group()
-        ProductExpression(elems: [x,x,
-            ProductExpression(elems:[y,z]),x,y,y,z]).group()
-        ProductExpression(elems: [x]).group()
-        ProductExpression(elems: [y,y,y]).group()
-        ProductExpression(elems: [x,y,z]).group()
-        ProductExpression(elems: [z,y,z]).group()
-        ProductExpression(elems: [z,y,y]).group()*/
         super.viewDidLoad()
+        green.alpha = 0
+        check.alpha = 0
         mainExpression = getExpr()
         renderMainExpression()
     }
@@ -59,6 +50,14 @@ class ViewController: UIViewController {
                 "ret": ret
             ])
         )
+        if mainExpression.to_string() == "((x)^(7))•z•y" {
+            UIView.animateWithDuration(0.9, delay: 0.3, options: nil,
+                animations: { () -> Void in
+                    self.green.alpha = 0.3
+                    self.check.alpha = 1
+            }, completion: nil)
+        }
+        println(mainExpression.to_string())
     }
 
     func getExpr() -> ProductExpression {
@@ -92,7 +91,6 @@ class ViewController: UIViewController {
     }
 
     func renderVariable(variable: Variable) -> ExpressionView {
-        println("rendering variable exp " + variable.to_string())
         var firstLabel = UILabel()
         firstLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         firstLabel.font = bigFont
@@ -105,7 +103,6 @@ class ViewController: UIViewController {
     }
 
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
-        println("rendering product expr " + prod.to_string())
         let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
         pincher.expression = prod
         var panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
@@ -183,7 +180,6 @@ class ViewController: UIViewController {
 
 
     func renderSimpleExp(exp: ExponentExpression) -> ExpressionView {
-        println("rendering simple exp " + exp.to_string())
         let container = UIView()
         container.setTranslatesAutoresizingMaskIntoConstraints(false)
         let simpleBase = exp.base as! Variable
@@ -237,11 +233,10 @@ class ViewController: UIViewController {
     }
 
     func exponentTapped(sender: SpecialTapGestureRecognizer) {
-        println("HELLLLOOO")
         mainExpression.group()
         let neww = (sender.expression as! ExponentExpression).expand()
-        println("main is " + mainExpression.to_string())
         mainExpression = mainExpression.selfWithReplacement(sender.expression, new: neww)
+        mainExpression.group()
         renderMainExpression()
     }
 
