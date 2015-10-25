@@ -60,6 +60,12 @@ class ProductExpression: NSObject, Expression {
         return ProductExpression(elems: newElements)
     }
 
+    func swap(index1: Int, index2: Int) {
+        let temp = elements[index1]
+        elements[index1] = elements[index2]
+        elements[index2] = temp
+    }
+
     func contract() -> ExponentExpression {
         // could validate that all elements are the same
         return ExponentExpression(bse: elements[0], exp: elements.count)

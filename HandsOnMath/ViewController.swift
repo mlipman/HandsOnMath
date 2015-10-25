@@ -62,11 +62,6 @@ class ViewController: UIViewController {
         return ans
     }
 
-    @IBAction func doit(sender: AnyObject) {
-        expanded = !expanded
-        mainExpression = getExpr()
-        renderMainExpression()
-    }
 
     func renderExpression(expression: Expression) -> ExpressionView {
         let currView: ExpressionView
@@ -97,6 +92,7 @@ class ViewController: UIViewController {
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
         let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
         pincher.expression = prod
+        var panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
         let container = UIView()
         container.setTranslatesAutoresizingMaskIntoConstraints(false)
         if prod.elements.count == 0 {
@@ -136,7 +132,6 @@ class ViewController: UIViewController {
                     ])
                 )
             } else {
-
                 let START = CGFloat(10.0)
                 let constraint = NSLayoutConstraint(
                     item: currView, attribute: .Leading,
@@ -146,9 +141,7 @@ class ViewController: UIViewController {
                 )
                 container.addConstraint(constraint)
                 pincher.constraintSet.append(constraint)
-
             }
-            var panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
             panner.expression = elem
             panner.parentView = container
             currView.addGestureRecognizer(panner)
@@ -166,6 +159,7 @@ class ViewController: UIViewController {
         var exprView = ExpressionView()
         exprView.expression = prod
         exprView.consume(container)
+        panner.productExpression = prod
 
         container.addGestureRecognizer(pincher)
         return exprView
@@ -243,6 +237,7 @@ class ViewController: UIViewController {
 
     func childPanned(sender: SpecialPanGestureRecognizer) {
         if sender.state == .Began {
+            sender.setUpViewToDistance()
             sender.view!.hidden = true
             var newCopy = renderExpression(sender.expression)
             sender.newCopyStore = newCopy
@@ -269,11 +264,19 @@ class ViewController: UIViewController {
 
         } else if sender.state == .Changed {
             sender.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
-            // maybe re arrange here
+                let newIndex = sender.indexForView(sender.newCopyStore!)
+            if newIndex != sender.mostRecentIndex {
+                sender.mostRecentIndex = newIndex
+            }
+
         } else if contains([.Ended, .Failed, .Cancelled], sender.state) {
             // re arrange
             sender.view!.hidden = false
             sender.newCopyStore.removeFromSuperview()
+            let initialIndex = sender.indexForView(sender.view!)
+            sender.productExpression.swap(sender.mostRecentIndex!, index2: initialIndex)
+            renderMainExpression()
+
 
         }
 
