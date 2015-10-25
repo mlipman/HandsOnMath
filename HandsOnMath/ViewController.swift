@@ -9,20 +9,26 @@
 import UIKit
 
 class ViewController: UIViewController {
-    var bigFont = UIFont.systemFontOfSize(48)
-    var smallFont = UIFont.systemFontOfSize(30)
+
+    var bigFont = UIFont.systemFontOfSize(100)
+    var smallFont = UIFont.systemFontOfSize(60)
 
 
     @IBOutlet weak var xLabel: UILabel!
     @IBOutlet weak var fiveLabel: UILabel!
+    @IBOutlet weak var holder: UIView!
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         let x = Variable(lttr: "x")
+        let y = Variable(lttr: "y")
+        let z = Variable(lttr: "z")
+
         let xfif = ExponentExpression(bse: x, exp: 5)
         let blah = ProductExpression(elems: [x, xfif])
-        let xxpand = xfif.expand()
+        let xxxxpand = xfif.expand()
+        let xxpand = ProductExpression(elems: [xfif,y,z,x])
 
         /*
         println("x is " + x.description())
@@ -31,10 +37,27 @@ class ViewController: UIViewController {
         println("xxpand is " + xxpand.description())
         */
 
-        let go = ExponentExpression(bse: Variable(lttr: "z"), exp: 5)
+        //let go = ExponentExpression(bse: Variable(lttr: "r"), exp: 9)
         xLabel.hidden = true
         fiveLabel.hidden = true
-        renderExpression(go)
+        let ret = renderProductExp(xxpand)
+        holder.addSubview(ret)
+        holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+            "V:|[ret]|",
+            options: nil,
+            metrics: nil,
+            views: [
+                "ret": ret
+            ])
+        )
+        holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+            "H:|[ret]|",
+            options: nil,
+            metrics: nil,
+            views: [
+                "ret": ret
+            ])
+        )
     }
 
     @IBAction func tappedFive(sender: UITapGestureRecognizer) {
@@ -56,75 +79,129 @@ class ViewController: UIViewController {
         }
     }
 
-    func renderExpression(expr: Expression) {
-        let container = UIView()
-        var ahh: UIView!
-        container.setTranslatesAutoresizingMaskIntoConstraints(false)
-        if let exp = expr as? ExponentExpression {
-            if let simpleBase = exp.base as? Variable {
-                let baseLabel = UILabel()
-                baseLabel.userInteractionEnabled = true
-                baseLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
-                baseLabel.text = simpleBase.letter
-                baseLabel.font = bigFont
-                let expLabel = UILabel()
-                expLabel.text = String(exp.exponent)
-                expLabel.userInteractionEnabled = true
-                expLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
-                expLabel.font = smallFont
-
-                container.addSubview(baseLabel)
-                container.addSubview(expLabel)
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "V:|[exp]",
-                    options: nil,
-                    metrics: nil,
-                    views: [
-                        "exp": expLabel
-                    ])
-                )
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "V:|[base]",
-                    options: nil,
-                    metrics: nil,
-                    views: [
-                        "base": baseLabel
-                    ])
-                )
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:|[base][exp]|",
-                    options: nil,
-                    metrics: nil,
-                    views: [
-                        "base": baseLabel,
-                        "exp": expLabel
-                    ])
-                )
-
-                view.addSubview(container)
-                //view.addSubview(expLabel)
-                view.addConstraint(NSLayoutConstraint(
-                    item: view, attribute: .CenterY,
-                    relatedBy: .Equal,
-                    toItem: container, attribute: .CenterY,
-                    multiplier: 1, constant: 0
-                ))
-                view.addConstraint(NSLayoutConstraint(
-                    item: view, attribute: .CenterX,
-                    relatedBy: .Equal,
-                    toItem: container, attribute: .CenterX,
-                    multiplier: 1, constant: 0
-                ))
-                ahh = expLabel
-            }
-        }
-
-        println("container's constraints is")
-        println(ahh)
-        println("that was container")
-        view.setNeedsLayout()
+    func renderVariable(variable: Variable) -> UIView {
+        var firstLabel = UILabel()
+        firstLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        firstLabel.font = bigFont
+        firstLabel.userInteractionEnabled = true
+        firstLabel.text = variable.letter
+        return firstLabel
     }
 
+    func renderProductExp(prod: ProductExpression) -> UIView {
+        let container = UIView()
+        container.setTranslatesAutoresizingMaskIntoConstraints(false)
+        if prod.elements.count == 0 {
+            return UIView()
+        }
+
+        var firstElemSet = false
+        var prev = container
+        for elem in prod.elements {
+            let currView: UIView
+            if let variable = elem as? Variable {
+                currView = renderVariable(variable)
+            } else {
+                // will probably eventually call expression.render on firstElem
+                let expExpr = elem as! ExponentExpression
+                currView = renderSimpleExp(expExpr)
+            }
+
+            container.addSubview(currView)
+
+            container.addConstraint(NSLayoutConstraint(
+                item: currView, attribute: .CenterY,
+                relatedBy: .Equal,
+                toItem: prev, attribute: .CenterY,
+                multiplier: 1, constant: 0))
+            if !firstElemSet {
+                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+                    "V:|[curr]|",
+                    options: nil,
+                    metrics: nil,
+                    views: [
+                        "curr": currView
+                    ])
+                )
+                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+                    "H:|[curr]",
+                    options: nil,
+                    metrics: ["space": 10],
+                    views: [
+                        "prev": prev,
+                        "curr": currView
+                    ])
+                )
+            } else {
+                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+                    "H:[prev]-(space)-[curr]",
+                    options: nil,
+                    metrics: ["space": 10],
+                    views: [
+                        "prev": prev,
+                        "curr": currView
+                    ])
+                )
+            }
+            firstElemSet = true
+            prev = currView
+        }
+        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+            "H:[last]|",
+            options: nil,
+            metrics: nil,
+            views: [
+                "last": prev
+            ])
+        )
+        return container
+    }
+
+
+    func renderSimpleExp(exp: ExponentExpression) -> UIView {
+        let container = UIView()
+        container.setTranslatesAutoresizingMaskIntoConstraints(false)
+        let simpleBase = exp.base as! Variable
+        let baseLabel = UILabel()
+        baseLabel.userInteractionEnabled = true
+        baseLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        baseLabel.text = simpleBase.letter
+        baseLabel.font = bigFont
+        let expLabel = UILabel()
+        expLabel.text = String(exp.exponent)
+        expLabel.userInteractionEnabled = true
+        expLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        expLabel.font = smallFont
+
+        container.addSubview(baseLabel)
+        container.addSubview(expLabel)
+        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+            "V:|[exp]",
+            options: nil,
+            metrics: nil,
+            views: [
+                "exp": expLabel
+            ])
+        )
+        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+            "V:|[base]|",
+            options: nil,
+            metrics: nil,
+            views: [
+                "base": baseLabel
+            ])
+        )
+        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+            "H:|[base][exp]|",
+            options: nil,
+            metrics: nil,
+            views: [
+                "base": baseLabel,
+                "exp": expLabel
+            ])
+        )
+        return container
+    }
 }
 
 /*

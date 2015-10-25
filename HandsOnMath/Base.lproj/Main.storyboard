@@ -37,17 +37,28 @@
                                     <outletCollection property="gestureRecognizers" destination="o9v-jY-WLa" appends="YES" id="LDL-AI-6bp"/>
                                 </connections>
                             </label>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ghg-IH-NlC">
+                                <rect key="frame" x="150" y="150" width="300" height="300"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="300" placeholder="YES" id="ey5-9H-DVi"/>
+                                    <constraint firstAttribute="width" constant="300" placeholder="YES" id="g1E-TC-wqT"/>
+                                </constraints>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="oGz-1B-ZcO" firstAttribute="leading" secondItem="PHb-LM-tpD" secondAttribute="trailing" constant="5" id="12D-sF-lVk"/>
                             <constraint firstItem="PHb-LM-tpD" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="6DX-8V-C4V"/>
                             <constraint firstItem="PHb-LM-tpD" firstAttribute="top" secondItem="oGz-1B-ZcO" secondAttribute="bottom" constant="-55" id="Pwb-PD-dM1"/>
+                            <constraint firstAttribute="centerY" secondItem="Ghg-IH-NlC" secondAttribute="centerY" id="WGI-wg-i8q"/>
                             <constraint firstAttribute="centerY" secondItem="PHb-LM-tpD" secondAttribute="centerY" id="XhW-Z0-8e0"/>
+                            <constraint firstAttribute="centerX" secondItem="Ghg-IH-NlC" secondAttribute="centerX" id="q1c-eX-AaF"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="fiveLabel" destination="oGz-1B-ZcO" id="Nme-SS-X11"/>
+                        <outlet property="holder" destination="Ghg-IH-NlC" id="0f1-nI-1BZ"/>
                         <outlet property="xLabel" destination="PHb-LM-tpD" id="mYU-Xa-zvf"/>
                     </connections>
                 </viewController>
