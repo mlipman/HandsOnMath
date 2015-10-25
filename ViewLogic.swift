@@ -51,6 +51,7 @@ class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
     var minXCoord: CGFloat!
     var mostRecentIndex: Int?
     var productExpression: ProductExpression!
+    var constraintToAnimateFor: NSLayoutConstraint!
 
     func indexForView(input: UIView) -> Int {
         let dist = input.center.x - minXCoord

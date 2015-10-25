@@ -248,6 +248,7 @@ class ViewController: UIViewController {
                 toItem: newCopy, attribute: .CenterY,
                 multiplier: 1, constant: 0)
             sender.parentView.addConstraint(constraintToAnimate)
+            sender.constraintToAnimateFor = constraintToAnimate
             let xCnstr = NSLayoutConstraint(
                 item: newCopy, attribute: .CenterX,
                 relatedBy: .Equal,
@@ -270,13 +271,19 @@ class ViewController: UIViewController {
             }
 
         } else if contains([.Ended, .Failed, .Cancelled], sender.state) {
-            // re arrange
-            sender.view!.hidden = false
-            sender.newCopyStore.removeFromSuperview()
-            let initialIndex = sender.indexForView(sender.view!)
-            sender.productExpression.swap(sender.mostRecentIndex!, index2: initialIndex)
-            renderMainExpression()
+            sender.constraintToAnimateFor.constant = 0
+            UIView.animateWithDuration(Double(0.4),
+                animations: { () -> Void in
+                    sender.parentView.layoutIfNeeded()
+                },
+                completion: { (completed: Bool) -> Void in
+                    let initialIndex = sender.indexForView(sender.view!)
+                    sender.productExpression.swap(sender.mostRecentIndex!, index2: initialIndex)
+                    sender.view!.hidden = false
+                    sender.newCopyStore.removeFromSuperview()
+                    self.renderMainExpression()
 
+            })
 
         }
 
