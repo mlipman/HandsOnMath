@@ -9,19 +9,21 @@
 import Foundation
 
 
-protocol Expression {
-    func description() -> String
+protocol Expression: NSObjectProtocol {
+    func to_string() -> String
+
+    func selfWithReplacement(old: Expression, new: Expression) -> Expression
 }
 
-class ExponentExpression: Expression {
+class ExponentExpression: NSObject, Expression {
     init(bse: Expression, exp: Int?) {
         exponent = exp ?? 1
         base = bse
     }
     var exponent: Int
     var base: Expression
-    func description() -> String {
-        return "((" + base.description() + ")^(" + String(exponent) + "))"
+    func to_string() -> String {
+        return "((" + base.to_string() + ")^(" + String(exponent) + "))"
     }
 
     func expand() -> ProductExpression {
@@ -31,22 +33,36 @@ class ExponentExpression: Expression {
         }
         return ProductExpression(elems: ans)
     }
+
+    func selfWithReplacement(old: Expression, new: Expression) -> Expression {
+        let newBase = (old === base) ? new : base
+        return ExponentExpression(bse: newBase, exp: exponent)
+    }
+
 }
 
-class ProductExpression: Expression {
+class ProductExpression: NSObject, Expression {
     init(elems: [Expression]) {
         elements = elems
     }
     var elements: [Expression]
-    func description() -> String {
-        let descs = elements.map({$0.description()}) as [String]
+    func to_string() -> String {
+        let descs = elements.map({$0.to_string()}) as [String]
         return "•".join(descs)
+    }
+
+    func selfWithReplacement(old: Expression, new: Expression) -> Expression {
+        var newElements: [Expression] = []
+        for (i, element) in enumerate(elements) {
+            newElements[i] = (old === element) ? new : element
+        }
+        return ProductExpression(elems: newElements)
     }
 
 
 }
 
-class DivisorExpression: Expression {
+class DivisorExpression: NSObject, Expression {
     init(num: Expression, denom: Expression) {
         self.numerator = num
         self.denominator = denom
@@ -54,26 +70,33 @@ class DivisorExpression: Expression {
 
     var numerator: Expression!
     var denominator: Expression!
-    func description() -> String {
-        return numerator.description() + "/" + denominator.description()
+    func to_string() -> String {
+        return numerator.to_string() + "/" + denominator.to_string()
+    }
+
+    func selfWithReplacement(old: Expression, new: Expression) -> Expression {
+        let newNum = (old === numerator) ? new : numerator
+        let newDenom = (old === denominator) ? new : denominator
+        return DivisorExpression(num: newNum, denom: newDenom)
     }
 }
 
-class Variable: Expression {
+class Variable: NSObject, Expression {
     init(lttr: String) {
         letter = lttr
     }
 
     var letter: String
 
-    func description() -> String {
-        return letter
-        /*
-        if (letter in ["/", "^", "(", ")", "•"]) {
+    func to_string() -> String {
+        if contains(["/", "^", "(", ")", "•"], letter) {
             return "\\"+letter
         } else {
             return letter
         }
-        */
+    }
+
+    func selfWithReplacement(old: Expression, new: Expression) -> Expression {
+        return (old === self) ? new : self
     }
 }
