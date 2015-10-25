@@ -39,4 +39,5 @@ class SpecialTapGestureRecognizer: UITapGestureRecognizer {
 
 class SpecialPinchGestureRecognizer: UIPinchGestureRecognizer {
     var expression: Expression!
+    var constraintSet: [NSLayoutConstraint] = []
 }

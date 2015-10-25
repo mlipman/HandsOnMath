@@ -68,27 +68,6 @@ class ViewController: UIViewController {
         renderMainExpression()
     }
 
-    /*
-    @IBAction func tappedFive(sender: UITapGestureRecognizer) {
-        if (sender.state == .Ended) {
-            sender.view!.hidden = true
-            let repeatText = "x"
-            for _ in 1..<5 {
-                xLabel.text = (xLabel.text ?? "") + "•" + repeatText
-            }
-        }
-    }
-    @IBAction func didPinchX(sender: UITapGestureRecognizer) {
-        if (sender.state == .Ended) {
-            let x = sender.view as! UILabel
-            if (x.text! == "x•x•x•x•x") {
-                x.text = "x"
-                fiveLabel.hidden = false
-            }
-        }
-    }
-    */
-
     func renderExpression(expression: Expression) -> ExpressionView {
         let currView: ExpressionView
         if let variable = expression as? Variable {
@@ -116,6 +95,8 @@ class ViewController: UIViewController {
     }
 
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
+        let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
+        pincher.expression = prod
         let container = UIView()
         container.setTranslatesAutoresizingMaskIntoConstraints(false)
         if prod.elements.count == 0 {
@@ -155,15 +136,17 @@ class ViewController: UIViewController {
                     ])
                 )
             } else {
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:[prev]-(space)-[curr]",
-                    options: nil,
-                    metrics: ["space": 10],
-                    views: [
-                        "prev": prev,
-                        "curr": currView
-                    ])
+
+                let START = CGFloat(10.0)
+                let constraint = NSLayoutConstraint(
+                    item: currView, attribute: .Leading,
+                    relatedBy: .Equal,
+                    toItem: prev, attribute: .Trailing,
+                    multiplier: 1, constant: START
                 )
+                container.addConstraint(constraint)
+                pincher.constraintSet.append(constraint)
+
             }
             firstElemSet = true
             prev = currView
@@ -180,8 +163,6 @@ class ViewController: UIViewController {
         exprView.expression = prod
         exprView.consume(container)
 
-        let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
-        pincher.expression = prod
         container.addGestureRecognizer(pincher)
         return exprView
     }
@@ -249,6 +230,10 @@ class ViewController: UIViewController {
         if sender.state == .Ended {
             mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
             renderMainExpression()
+        } else if sender.state == .Changed {
+            for constraint in sender.constraintSet {
+                constraint.constant = 60*sender.scale - 50
+            }
         }
     }
 }
