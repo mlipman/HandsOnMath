@@ -33,6 +33,10 @@ class ExpressionView: UIView {
     }
 }
 
-class SpecialGestureRecognizer: UITapGestureRecognizer {
+class SpecialTapGestureRecognizer: UITapGestureRecognizer {
+    var expression: Expression!
+}
+
+class SpecialPinchGestureRecognizer: UIPinchGestureRecognizer {
     var expression: Expression!
 }

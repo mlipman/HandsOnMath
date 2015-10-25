@@ -179,6 +179,10 @@ class ViewController: UIViewController {
         var exprView = ExpressionView()
         exprView.expression = prod
         exprView.consume(container)
+
+        let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
+        pincher.expression = prod
+        container.addGestureRecognizer(pincher)
         return exprView
     }
 
@@ -229,16 +233,23 @@ class ViewController: UIViewController {
         exprView.expression = exp
         exprView.consume(container)
 
-        let tap = SpecialGestureRecognizer(target: self, action: "exponentTapped:")
+        let tap = SpecialTapGestureRecognizer(target: self, action: "exponentTapped:")
         tap.expression = exp
         expLabel.addGestureRecognizer(tap)
 
         return exprView
     }
 
-    func exponentTapped(sender: SpecialGestureRecognizer) {
+    func exponentTapped(sender: SpecialTapGestureRecognizer) {
         mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
         renderMainExpression()
+    }
+
+    func prodPinched(sender: SpecialPinchGestureRecognizer) {
+        if sender.state == .Ended {
+            mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
+            renderMainExpression()
+        }
     }
 }
 

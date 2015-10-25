@@ -60,6 +60,11 @@ class ProductExpression: NSObject, Expression {
         return ProductExpression(elems: newElements)
     }
 
+    func contract() -> ExponentExpression {
+        // could validate that all elements are the same
+        return ExponentExpression(bse: elements[0], exp: elements.count)
+    }
+
 
 }
 
