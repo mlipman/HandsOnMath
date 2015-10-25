@@ -14,6 +14,7 @@
 		1D71DDEF1BDB844700B01C14 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1D71DDEE1BDB844700B01C14 /* Images.xcassets */; };
 		1D71DDF21BDB844700B01C14 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1D71DDF01BDB844700B01C14 /* LaunchScreen.xib */; };
 		1D71DDFE1BDB844700B01C14 /* HandsOnMathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D71DDFD1BDB844700B01C14 /* HandsOnMathTests.swift */; };
+		1DE3D3581BDBFDE400E8C234 /* ExpressionBrain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,7 @@
 		1D71DDF71BDB844700B01C14 /* HandsOnMathTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HandsOnMathTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D71DDFC1BDB844700B01C14 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1D71DDFD1BDB844700B01C14 /* HandsOnMathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HandsOnMathTests.swift; sourceTree = "<group>"; };
+		1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressionBrain.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +84,7 @@
 				1D71DDE41BDB844700B01C14 /* AppDelegate.swift */,
 				1D71DDE91BDB844700B01C14 /* ViewController.swift */,
 				1D71DDEB1BDB844700B01C14 /* Main.storyboard */,
+				1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */,
 				1D71DDEE1BDB844700B01C14 /* Images.xcassets */,
 				1D71DDF01BDB844700B01C14 /* LaunchScreen.xib */,
 				1D71DDE61BDB844700B01C14 /* HandsOnMath.xcdatamodeld */,
@@ -215,6 +218,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1DE3D3581BDBFDE400E8C234 /* ExpressionBrain.swift in Sources */,
 				1D71DDEA1BDB844700B01C14 /* ViewController.swift in Sources */,
 				1D71DDE51BDB844700B01C14 /* AppDelegate.swift in Sources */,
 				1D71DDE81BDB844700B01C14 /* HandsOnMath.xcdatamodeld in Sources */,
@@ -415,6 +419,7 @@
 				1D71DE031BDB844700B01C14 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1D71DE041BDB844700B01C14 /* Build configuration list for PBXNativeTarget "HandsOnMathTests" */ = {
 			isa = XCConfigurationList;
@@ -423,6 +428,7 @@
 				1D71DE061BDB844700B01C14 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
