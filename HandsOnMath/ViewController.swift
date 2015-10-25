@@ -13,34 +13,23 @@ class ViewController: UIViewController {
     var bigFont = UIFont.systemFontOfSize(100)
     var smallFont = UIFont.systemFontOfSize(60)
 
-
-    @IBOutlet weak var xLabel: UILabel!
-    @IBOutlet weak var fiveLabel: UILabel!
     @IBOutlet weak var holder: UIView!
+    var mainExpression: ProductExpression!
+    var expanded = false
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let x = Variable(lttr: "x")
-        let y = Variable(lttr: "y")
-        let z = Variable(lttr: "z")
+        mainExpression = getExpr()
+        println(mainExpression.description())
+        renderMainExpression()
+    }
 
-        let xfif = ExponentExpression(bse: x, exp: 5)
-        let blah = ProductExpression(elems: [x, xfif])
-        let xxxxpand = xfif.expand()
-        let xxpand = ProductExpression(elems: [xfif,y,z,x])
-
-        /*
-        println("x is " + x.description())
-        println("xfif is " + xfif.description())
-        println("blah is " + blah.description())
-        println("xxpand is " + xxpand.description())
-        */
-
-        //let go = ExponentExpression(bse: Variable(lttr: "r"), exp: 9)
-        xLabel.hidden = true
-        fiveLabel.hidden = true
-        let ret = renderProductExp(xxpand)
+    func renderMainExpression() {
+        for vieww in holder.subviews {
+            vieww.removeFromSuperview()
+        }
+        let ret = renderProductExp(mainExpression)
         holder.addSubview(ret)
         holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[ret]|",
@@ -60,6 +49,28 @@ class ViewController: UIViewController {
         )
     }
 
+    func getExpr() -> ProductExpression {
+        let x = Variable(lttr: "x")
+        let y = Variable(lttr: "y")
+        let z = Variable(lttr: "z")
+        let xfif = ExponentExpression(bse: x, exp: 5)
+        let blah = ProductExpression(elems: [x, xfif])
+        var first: Expression = xfif
+        if expanded {
+            first = xfif.expand()
+        }
+        let ans = ProductExpression(elems: [first,y,z,x])
+        return ans
+    }
+
+    @IBAction func doit(sender: AnyObject) {
+        expanded = !expanded
+        mainExpression = getExpr()
+        println(mainExpression.description())
+        renderMainExpression()
+    }
+
+    /*
     @IBAction func tappedFive(sender: UITapGestureRecognizer) {
         if (sender.state == .Ended) {
             sender.view!.hidden = true
@@ -78,6 +89,7 @@ class ViewController: UIViewController {
             }
         }
     }
+    */
 
     func renderVariable(variable: Variable) -> UIView {
         var firstLabel = UILabel()
@@ -101,10 +113,12 @@ class ViewController: UIViewController {
             let currView: UIView
             if let variable = elem as? Variable {
                 currView = renderVariable(variable)
-            } else {
-                // will probably eventually call expression.render on firstElem
-                let expExpr = elem as! ExponentExpression
+            } else if let expExpr = elem as? ExponentExpression {
                 currView = renderSimpleExp(expExpr)
+            } else {
+                // will probably eventually call expression.render on elem
+                let prodExpr = elem as! ProductExpression
+                currView = renderProductExp(prodExpr)
             }
 
             container.addSubview(currView)

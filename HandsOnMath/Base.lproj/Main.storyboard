@@ -2,7 +2,6 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="7706" systemVersion="14F27" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="7703"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
@@ -17,26 +16,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="x" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PHb-LM-tpD">
-                                <rect key="frame" x="16" y="252" width="40.5" height="95.5"/>
-                                <gestureRecognizers/>
-                                <fontDescription key="fontDescription" type="system" pointSize="80"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="cmW-Qg-w6u" appends="YES" id="A3b-eC-CHR"/>
-                                </connections>
-                            </label>
-                            <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oGz-1B-ZcO">
-                                <rect key="frame" x="61" y="231" width="35" height="76.5"/>
-                                <gestureRecognizers/>
-                                <fontDescription key="fontDescription" type="system" pointSize="64"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                                <connections>
-                                    <outletCollection property="gestureRecognizers" destination="o9v-jY-WLa" appends="YES" id="LDL-AI-6bp"/>
-                                </connections>
-                            </label>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ghg-IH-NlC">
                                 <rect key="frame" x="150" y="150" width="300" height="300"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -45,21 +24,24 @@
                                     <constraint firstAttribute="width" constant="300" placeholder="YES" id="g1E-TC-wqT"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EJQ-4s-Kle">
+                                <rect key="frame" x="16" y="20" width="33" height="30"/>
+                                <state key="normal" title="Do it">
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="doit:" destination="BYZ-38-t0r" eventType="touchUpInside" id="J7q-nZ-xjO"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="oGz-1B-ZcO" firstAttribute="leading" secondItem="PHb-LM-tpD" secondAttribute="trailing" constant="5" id="12D-sF-lVk"/>
-                            <constraint firstItem="PHb-LM-tpD" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="6DX-8V-C4V"/>
-                            <constraint firstItem="PHb-LM-tpD" firstAttribute="top" secondItem="oGz-1B-ZcO" secondAttribute="bottom" constant="-55" id="Pwb-PD-dM1"/>
                             <constraint firstAttribute="centerY" secondItem="Ghg-IH-NlC" secondAttribute="centerY" id="WGI-wg-i8q"/>
-                            <constraint firstAttribute="centerY" secondItem="PHb-LM-tpD" secondAttribute="centerY" id="XhW-Z0-8e0"/>
                             <constraint firstAttribute="centerX" secondItem="Ghg-IH-NlC" secondAttribute="centerX" id="q1c-eX-AaF"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="fiveLabel" destination="oGz-1B-ZcO" id="Nme-SS-X11"/>
                         <outlet property="holder" destination="Ghg-IH-NlC" id="0f1-nI-1BZ"/>
-                        <outlet property="xLabel" destination="PHb-LM-tpD" id="mYU-Xa-zvf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
