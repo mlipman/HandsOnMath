@@ -41,3 +41,10 @@ class SpecialPinchGestureRecognizer: UIPinchGestureRecognizer {
     var expression: Expression!
     var constraintSet: [NSLayoutConstraint] = []
 }
+
+class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
+    var expression: Expression!
+    var parentView: UIView!
+    var xConstraint: NSLayoutConstraint!
+    var newCopyStore: ExpressionView!
+}

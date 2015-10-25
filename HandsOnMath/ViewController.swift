@@ -148,6 +148,10 @@ class ViewController: UIViewController {
                 pincher.constraintSet.append(constraint)
 
             }
+            var panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
+            panner.expression = elem
+            panner.parentView = container
+            currView.addGestureRecognizer(panner)
             firstElemSet = true
             prev = currView
         }
@@ -235,6 +239,45 @@ class ViewController: UIViewController {
                 constraint.constant = 60*sender.scale - 50
             }
         }
+    }
+
+    func childPanned(sender: SpecialPanGestureRecognizer) {
+        if sender.state == .Began {
+            sender.view!.hidden = true
+            var newCopy = renderExpression(sender.expression)
+            sender.newCopyStore = newCopy
+            sender.parentView.addSubview(newCopy)
+            var constraintToAnimate = NSLayoutConstraint(
+                item: sender.view!, attribute: .CenterY,
+                relatedBy: .Equal,
+                toItem: newCopy, attribute: .CenterY,
+                multiplier: 1, constant: 0)
+            sender.parentView.addConstraint(constraintToAnimate)
+            let xCnstr = NSLayoutConstraint(
+                item: newCopy, attribute: .CenterX,
+                relatedBy: .Equal,
+                toItem: sender.view!, attribute: .CenterX,
+                multiplier: 1, constant: 0)
+            sender.parentView.addConstraint(xCnstr)
+            sender.parentView.layoutIfNeeded()
+
+            sender.xConstraint = xCnstr
+            constraintToAnimate.constant = 60
+            UIView.animateWithDuration(Double(0.3), animations: {
+                sender.parentView.layoutIfNeeded()
+            })
+
+        } else if sender.state == .Changed {
+            sender.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
+            // maybe re arrange here
+        } else if contains([.Ended, .Failed, .Cancelled], sender.state) {
+            // re arrange
+            sender.view!.hidden = false
+            sender.newCopyStore.removeFromSuperview()
+
+        }
+
+        // join where possible
     }
 }
 
