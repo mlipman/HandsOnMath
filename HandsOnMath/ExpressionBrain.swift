@@ -54,7 +54,8 @@ class ProductExpression: NSObject, Expression {
     func selfWithReplacement(old: Expression, new: Expression) -> Expression {
         var newElements: [Expression] = []
         for (i, element) in enumerate(elements) {
-            newElements[i] = (old === element) ? new : element
+            let newElement: Expression = (old === element) ? new : element
+            newElements.append(newElement)
         }
         return ProductExpression(elems: newElements)
     }

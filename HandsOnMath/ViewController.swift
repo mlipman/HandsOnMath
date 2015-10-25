@@ -14,14 +14,13 @@ class ViewController: UIViewController {
     var smallFont = UIFont.systemFontOfSize(60)
 
     @IBOutlet weak var holder: UIView!
-    var mainExpression: ProductExpression!
+    var mainExpression: Expression!
     var expanded = false
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         mainExpression = getExpr()
-        println(mainExpression.to_string())
         renderMainExpression()
     }
 
@@ -29,7 +28,7 @@ class ViewController: UIViewController {
         for vieww in holder.subviews {
             vieww.removeFromSuperview()
         }
-        let ret = renderProductExp(mainExpression)
+        let ret = renderExpression(mainExpression)
         holder.addSubview(ret)
         holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[ret]|",
@@ -66,7 +65,6 @@ class ViewController: UIViewController {
     @IBAction func doit(sender: AnyObject) {
         expanded = !expanded
         mainExpression = getExpr()
-        println(mainExpression.to_string())
         renderMainExpression()
     }
 
@@ -90,6 +88,20 @@ class ViewController: UIViewController {
         }
     }
     */
+
+    func renderExpression(expression: Expression) -> ExpressionView {
+        let currView: ExpressionView
+        if let variable = expression as? Variable {
+            currView = renderVariable(variable)
+        } else if let expExpr = expression as? ExponentExpression {
+            currView = renderSimpleExp(expExpr)
+        } else {
+            // almost fully generalized
+            let prodExpr = expression as! ProductExpression
+            currView = renderProductExp(prodExpr)
+        }
+        return currView
+    }
 
     func renderVariable(variable: Variable) -> ExpressionView {
         var firstLabel = UILabel()
@@ -115,16 +127,7 @@ class ViewController: UIViewController {
         var firstElemSet = false
         var prev = container
         for elem in prod.elements {
-            let currView: ExpressionView
-            if let variable = elem as? Variable {
-                currView = renderVariable(variable)
-            } else if let expExpr = elem as? ExponentExpression {
-                currView = renderSimpleExp(expExpr)
-            } else {
-                // will probably eventually call expression.render on elem
-                let prodExpr = elem as! ProductExpression
-                currView = renderProductExp(prodExpr)
-            }
+            let currView = renderExpression(elem)
 
             container.addSubview(currView)
 
@@ -225,7 +228,17 @@ class ViewController: UIViewController {
         var exprView = ExpressionView()
         exprView.expression = exp
         exprView.consume(container)
+
+        let tap = SpecialGestureRecognizer(target: self, action: "exponentTapped:")
+        tap.expression = exp
+        expLabel.addGestureRecognizer(tap)
+
         return exprView
+    }
+
+    func exponentTapped(sender: SpecialGestureRecognizer) {
+        mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
+        renderMainExpression()
     }
 }
 

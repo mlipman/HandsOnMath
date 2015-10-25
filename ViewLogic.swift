@@ -32,3 +32,7 @@ class ExpressionView: UIView {
         )
     }
 }
+
+class SpecialGestureRecognizer: UITapGestureRecognizer {
+    var expression: Expression!
+}
