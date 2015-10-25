@@ -13,6 +13,8 @@ protocol Expression: NSObjectProtocol {
     func to_string() -> String
 
     func selfWithReplacement(old: Expression, new: Expression) -> Expression
+
+    func group() -> Expression
 }
 
 class ExponentExpression: NSObject, Expression {
@@ -35,8 +37,12 @@ class ExponentExpression: NSObject, Expression {
     }
 
     func selfWithReplacement(old: Expression, new: Expression) -> Expression {
-        let newBase = (old === base) ? new : base
+        let newBase = (old.to_string() ==  base.to_string()) ? new : base
         return ExponentExpression(bse: newBase, exp: exponent)
+    }
+
+    func group() -> Expression {
+        return base.group()
     }
 
 }
@@ -54,7 +60,7 @@ class ProductExpression: NSObject, Expression {
     func selfWithReplacement(old: Expression, new: Expression) -> Expression {
         var newElements: [Expression] = []
         for (i, element) in enumerate(elements) {
-            let newElement: Expression = (old === element) ? new : element
+            let newElement: Expression = (old.to_string() ==  element.to_string()) ? new : element
             newElements.append(newElement)
         }
         return ProductExpression(elems: newElements)
@@ -70,6 +76,49 @@ class ProductExpression: NSObject, Expression {
         // could validate that all elements are the same
         return ExponentExpression(bse: elements[0], exp: elements.count)
     }
+
+    func group() -> Expression {
+        fullExpand()
+        var groups: [Expression] = []
+
+        if elements.count < 2 {
+            return elements[0]
+        }
+        var i = 1
+        var currGroup = [elements[0]]
+        var prevNode = elements[0]
+        do {
+            var currNode = elements[i]
+            if currNode.to_string() == prevNode.to_string() {
+                currGroup.append(elements[i])
+            } else {
+                groups.append(ProductExpression(elems: currGroup))
+                currGroup = [currNode]
+            }
+            prevNode = currNode
+            i += 1
+        } while (i < elements.count)
+        groups.append(ProductExpression(elems: currGroup))
+        self.elements = groups
+        return self
+
+    }
+
+    func fullExpand() {
+        var newElements = [Expression]()
+        for e in elements {
+            if let childProduct = e as? ProductExpression {
+                childProduct.fullExpand()
+                for subE in childProduct.elements {
+                    newElements.append(subE)
+                }
+            } else {
+                newElements.append(e)
+            }
+        }
+        elements = newElements
+    }
+
 
 
 }
@@ -91,6 +140,14 @@ class DivisorExpression: NSObject, Expression {
         let newDenom = (old === denominator) ? new : denominator
         return DivisorExpression(num: newNum, denom: newDenom)
     }
+
+    func group() -> Expression {
+        numerator.group()
+        denominator.group()
+        return self
+    }
+
+
 }
 
 class Variable: NSObject, Expression {
@@ -110,5 +167,9 @@ class Variable: NSObject, Expression {
 
     func selfWithReplacement(old: Expression, new: Expression) -> Expression {
         return (old === self) ? new : self
+    }
+
+    func group() -> Expression {
+        return self
     }
 }

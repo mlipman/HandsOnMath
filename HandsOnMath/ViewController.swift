@@ -19,6 +19,19 @@ class ViewController: UIViewController {
 
 
     override func viewDidLoad() {
+        var x = Variable(lttr: "x")
+        var y = Variable(lttr: "y")
+        var z = Variable(lttr: "z")
+/*
+        let a = ProductExpression(elems: [z,y])
+        ProductExpression(elems: [z, a]).group()
+        ProductExpression(elems: [x,x,
+            ProductExpression(elems:[y,z]),x,y,y,z]).group()
+        ProductExpression(elems: [x]).group()
+        ProductExpression(elems: [y,y,y]).group()
+        ProductExpression(elems: [x,y,z]).group()
+        ProductExpression(elems: [z,y,z]).group()
+        ProductExpression(elems: [z,y,y]).group()*/
         super.viewDidLoad()
         mainExpression = getExpr()
         renderMainExpression()
@@ -52,13 +65,14 @@ class ViewController: UIViewController {
         let x = Variable(lttr: "x")
         let y = Variable(lttr: "y")
         let z = Variable(lttr: "z")
+        let xx = ExponentExpression(bse: x, exp: 2)
         let xfif = ExponentExpression(bse: x, exp: 5)
         let blah = ProductExpression(elems: [x, xfif])
         var first: Expression = xfif
         if expanded {
             first = xfif.expand()
         }
-        let ans = ProductExpression(elems: [first,y,z,x])
+        let ans = ProductExpression(elems: [first,y,z,xx])
         return ans
     }
 
@@ -78,6 +92,7 @@ class ViewController: UIViewController {
     }
 
     func renderVariable(variable: Variable) -> ExpressionView {
+        println("rendering variable exp " + variable.to_string())
         var firstLabel = UILabel()
         firstLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
         firstLabel.font = bigFont
@@ -90,6 +105,7 @@ class ViewController: UIViewController {
     }
 
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
+        println("rendering product expr " + prod.to_string())
         let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
         pincher.expression = prod
         var panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
@@ -167,6 +183,7 @@ class ViewController: UIViewController {
 
 
     func renderSimpleExp(exp: ExponentExpression) -> ExpressionView {
+        println("rendering simple exp " + exp.to_string())
         let container = UIView()
         container.setTranslatesAutoresizingMaskIntoConstraints(false)
         let simpleBase = exp.base as! Variable
@@ -220,7 +237,11 @@ class ViewController: UIViewController {
     }
 
     func exponentTapped(sender: SpecialTapGestureRecognizer) {
-        mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
+        println("HELLLLOOO")
+        mainExpression.group()
+        let neww = (sender.expression as! ExponentExpression).expand()
+        println("main is " + mainExpression.to_string())
+        mainExpression = mainExpression.selfWithReplacement(sender.expression, new: neww)
         renderMainExpression()
     }
 
@@ -281,45 +302,12 @@ class ViewController: UIViewController {
                     sender.productExpression.swap(sender.mostRecentIndex!, index2: initialIndex)
                     sender.view!.hidden = false
                     sender.newCopyStore.removeFromSuperview()
+                    self.mainExpression = self.mainExpression.group()
                     self.renderMainExpression()
-
             })
-
         }
-
-        // join where possible
     }
 }
 
-/*
-calculatorbrain has a divisorofexpression
-whcich has a numeratorexp and denominator exp
-
-numeratorexp is an expression (abstract)
-
-can be either expexpression or product expression
-
-exp has an expression as base and an integer exponent
 
 
-product expression has an array of expressions
-
-
-important actions:
-exp expression can be expanded: base^exp becomes product expression of length exp, with base as all elements
-
-
-complex:
-product expressions can of course be nested
-after an action, if a product expression is next to another, they combine
-maybe: group: start underneath or at group button, drag within product to group
-
-product expressions should be analyzed for chains, they
-
-
-
-
-
-
-
-*/
