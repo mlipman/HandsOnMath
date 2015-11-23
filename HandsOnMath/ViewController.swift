@@ -32,7 +32,7 @@ class ViewController: UIViewController {
         holder.addSubview(ret)
         holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[ret]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "ret": ret
@@ -40,7 +40,7 @@ class ViewController: UIViewController {
         )
         holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "H:|[ret]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "ret": ret
@@ -53,7 +53,7 @@ class ViewController: UIViewController {
         let y = Variable(lttr: "y")
         let z = Variable(lttr: "z")
         let xfif = ExponentExpression(bse: x, exp: 5)
-        let blah = ProductExpression(elems: [x, xfif])
+        _ = ProductExpression(elems: [x, xfif])
         var first: Expression = xfif
         if expanded {
             first = xfif.expand()
@@ -78,12 +78,12 @@ class ViewController: UIViewController {
     }
 
     func renderVariable(variable: Variable) -> ExpressionView {
-        var firstLabel = UILabel()
-        firstLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        let firstLabel = UILabel()
+        firstLabel.translatesAutoresizingMaskIntoConstraints = false
         firstLabel.font = bigFont
         firstLabel.userInteractionEnabled = true
         firstLabel.text = variable.letter
-        var exprView = ExpressionView()
+        let exprView = ExpressionView()
         exprView.expression = variable
         exprView.consume(firstLabel)
         return exprView
@@ -92,11 +92,11 @@ class ViewController: UIViewController {
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
         let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
         pincher.expression = prod
-        var panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
+        let panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
         let container = UIView()
-        container.setTranslatesAutoresizingMaskIntoConstraints(false)
+        container.translatesAutoresizingMaskIntoConstraints = false
         if prod.elements.count == 0 {
-            var exprView = ExpressionView()
+            let exprView = ExpressionView()
             exprView.expression = ProductExpression(elems: [])
             return exprView
         }
@@ -116,7 +116,7 @@ class ViewController: UIViewController {
             if !firstElemSet {
                 container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
                     "V:|[curr]|",
-                    options: nil,
+                    options: [],
                     metrics: nil,
                     views: [
                         "curr": currView
@@ -124,7 +124,7 @@ class ViewController: UIViewController {
                 )
                 container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
                     "H:|[curr]",
-                    options: nil,
+                    options: [],
                     metrics: ["space": 10],
                     views: [
                         "prev": prev,
@@ -150,13 +150,13 @@ class ViewController: UIViewController {
         }
         container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "H:[last]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "last": prev
             ])
         )
-        var exprView = ExpressionView()
+        let exprView = ExpressionView()
         exprView.expression = prod
         exprView.consume(container)
         panner.productExpression = prod
@@ -168,24 +168,24 @@ class ViewController: UIViewController {
 
     func renderSimpleExp(exp: ExponentExpression) -> ExpressionView {
         let container = UIView()
-        container.setTranslatesAutoresizingMaskIntoConstraints(false)
+        container.translatesAutoresizingMaskIntoConstraints = false
         let simpleBase = exp.base as! Variable
         let baseLabel = UILabel()
         baseLabel.userInteractionEnabled = true
-        baseLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        baseLabel.translatesAutoresizingMaskIntoConstraints = false
         baseLabel.text = simpleBase.letter
         baseLabel.font = bigFont
         let expLabel = UILabel()
         expLabel.text = String(exp.exponent)
         expLabel.userInteractionEnabled = true
-        expLabel.setTranslatesAutoresizingMaskIntoConstraints(false)
+        expLabel.translatesAutoresizingMaskIntoConstraints = false
         expLabel.font = smallFont
 
         container.addSubview(baseLabel)
         container.addSubview(expLabel)
         container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[exp]",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "exp": expLabel
@@ -193,7 +193,7 @@ class ViewController: UIViewController {
         )
         container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[base]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "base": baseLabel
@@ -201,14 +201,14 @@ class ViewController: UIViewController {
         )
         container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "H:|[base][exp]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "base": baseLabel,
                 "exp": expLabel
             ])
         )
-        var exprView = ExpressionView()
+        let exprView = ExpressionView()
         exprView.expression = exp
         exprView.consume(container)
 
@@ -239,10 +239,10 @@ class ViewController: UIViewController {
         if sender.state == .Began {
             sender.setUpViewToDistance()
             sender.view!.hidden = true
-            var newCopy = renderExpression(sender.expression)
+            let newCopy = renderExpression(sender.expression)
             sender.newCopyStore = newCopy
             sender.parentView.addSubview(newCopy)
-            var constraintToAnimate = NSLayoutConstraint(
+            let constraintToAnimate = NSLayoutConstraint(
                 item: sender.view!, attribute: .CenterY,
                 relatedBy: .Equal,
                 toItem: newCopy, attribute: .CenterY,
@@ -270,7 +270,7 @@ class ViewController: UIViewController {
                 sender.mostRecentIndex = newIndex
             }
 
-        } else if contains([.Ended, .Failed, .Cancelled], sender.state) {
+        } else if [.Ended, .Failed, .Cancelled].contains(sender.state) {
             sender.constraintToAnimateFor.constant = 0
             UIView.animateWithDuration(Double(0.4),
                 animations: { () -> Void in

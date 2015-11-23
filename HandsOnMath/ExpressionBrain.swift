@@ -28,7 +28,7 @@ class ExponentExpression: NSObject, Expression {
 
     func expand() -> ProductExpression {
         var ans: [Expression] = []
-        for i in 0..<exponent {
+        for _ in 0..<exponent {
             ans.append(base)
         }
         return ProductExpression(elems: ans)
@@ -48,12 +48,12 @@ class ProductExpression: NSObject, Expression {
     var elements: [Expression]
     func to_string() -> String {
         let descs = elements.map({$0.to_string()}) as [String]
-        return "•".join(descs)
+        return descs.joinWithSeparator("•")
     }
 
     func selfWithReplacement(old: Expression, new: Expression) -> Expression {
         var newElements: [Expression] = []
-        for (i, element) in enumerate(elements) {
+        for (_, element) in elements.enumerate() {
             let newElement: Expression = (old === element) ? new : element
             newElements.append(newElement)
         }
@@ -101,7 +101,7 @@ class Variable: NSObject, Expression {
     var letter: String
 
     func to_string() -> String {
-        if contains(["/", "^", "(", ")", "•"], letter) {
+        if ["/", "^", "(", ")", "•"].contains(letter) {
             return "\\"+letter
         } else {
             return letter

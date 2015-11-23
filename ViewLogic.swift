@@ -12,11 +12,11 @@ class ExpressionView: UIView {
     var expression: Expression!
 
     func consume(eaten: UIView) {
-        self.setTranslatesAutoresizingMaskIntoConstraints(false)
+        self.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(eaten)
         self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "H:|[eat]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "eat": eaten
@@ -24,7 +24,7 @@ class ExpressionView: UIView {
         )
         self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[eat]|",
-            options: nil,
+            options: [],
             metrics: nil,
             views: [
                 "eat": eaten
@@ -70,7 +70,7 @@ class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
         }
         var allDistances = [CGFloat]()
         for child in self.parentView.subviews {
-            allDistances.append((child as! UIView).center.x)
+            allDistances.append((child ).center.x)
         }
         var minX  = allDistances[0]
         for d in allDistances {
@@ -80,7 +80,7 @@ class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
         }
         minXCoord = minX
         for child in self.parentView.subviews {
-            let a = child as! UIView
+            let a = child 
             let b = child.center.x
             let c = b - minX
             viewToDistance[a] = c
