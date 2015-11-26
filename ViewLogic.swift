@@ -8,9 +8,12 @@
 
 import UIKit
 
+
 class ExpressionView: UIView {
     var expression: Expression!
 
+    // Not totally sure why this hack is here and if it's necessary
+    // but I think it allows me to subclass UIView, while  also using UILabels
     func consume(eaten: UIView) {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(eaten)
@@ -70,21 +73,12 @@ class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
         }
         var allDistances = [CGFloat]()
         for child in self.parentView.subviews {
-            allDistances.append((child ).center.x)
+            allDistances.append(child.center.x)
         }
-        var minX  = allDistances[0]
-        for d in allDistances {
-            if d < minX {
-                minX = d
-            }
-        }
-        minXCoord = minX
+
+        minXCoord = allDistances.minElement()!
         for child in self.parentView.subviews {
-            let a = child 
-            let b = child.center.x
-            let c = b - minX
-            viewToDistance[a] = c
-            //viewToDistance[child as! UIView] = child.center.x - minX
+            viewToDistance[child] = child.center.x - minXCoord
         }
     }
 

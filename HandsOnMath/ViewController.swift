@@ -15,20 +15,23 @@ class ViewController: UIViewController {
 
     @IBOutlet weak var holder: UIView!
     var mainExpression: Expression!
-    var expanded = false
 
 
     override func viewDidLoad() {
         super.viewDidLoad()
         mainExpression = getExpr()
-        renderMainExpression()
+        renderMainExpressionInHolder()
     }
 
-    func renderMainExpression() {
+
+    func renderMainExpressionInHolder() {
+        // ret = new ExpressionView({model: mainExpression}).render()
+        let ret = renderExpression(mainExpression)
+
+        // $(holder).html(ret.$el)
         for vieww in holder.subviews {
             vieww.removeFromSuperview()
         }
-        let ret = renderExpression(mainExpression)
         holder.addSubview(ret)
         holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "V:|[ret]|",
@@ -54,10 +57,7 @@ class ViewController: UIViewController {
         let z = Variable(lttr: "z")
         let xfif = ExponentExpression(bse: x, exp: 5)
         _ = ProductExpression(elems: [x, xfif])
-        var first: Expression = xfif
-        if expanded {
-            first = xfif.expand()
-        }
+        let first: Expression = xfif
         let ans = ProductExpression(elems: [first,y,z,x])
         return ans
     }
@@ -68,6 +68,7 @@ class ViewController: UIViewController {
         if let variable = expression as? Variable {
             currView = renderVariable(variable)
         } else if let expExpr = expression as? ExponentExpression {
+            // TODO support complex exponent expressions
             currView = renderSimpleExp(expExpr)
         } else {
             // almost fully generalized
@@ -96,6 +97,7 @@ class ViewController: UIViewController {
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         if prod.elements.count == 0 {
+            // not sure why this is necessary
             let exprView = ExpressionView()
             exprView.expression = ProductExpression(elems: [])
             return exprView
@@ -117,7 +119,7 @@ class ViewController: UIViewController {
                 container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
                     "V:|[curr]|",
                     options: [],
-                    metrics: nil,
+                    metrics: [:],
                     views: [
                         "curr": currView
                     ])
@@ -125,14 +127,13 @@ class ViewController: UIViewController {
                 container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
                     "H:|[curr]",
                     options: [],
-                    metrics: ["space": 10],
+                    metrics: [:],
                     views: [
-                        "prev": prev,
                         "curr": currView
                     ])
                 )
             } else {
-                let START = CGFloat(10.0)
+                let START = CGFloat(10.0) // distance between factors in a product
                 let constraint = NSLayoutConstraint(
                     item: currView, attribute: .Leading,
                     relatedBy: .Equal,
@@ -212,22 +213,23 @@ class ViewController: UIViewController {
         exprView.expression = exp
         exprView.consume(container)
 
+
         let tap = SpecialTapGestureRecognizer(target: self, action: "exponentTapped:")
         tap.expression = exp
-        expLabel.addGestureRecognizer(tap)
+        exprView.addGestureRecognizer(tap)
 
         return exprView
     }
 
     func exponentTapped(sender: SpecialTapGestureRecognizer) {
         mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
-        renderMainExpression()
+        renderMainExpressionInHolder()
     }
 
     func prodPinched(sender: SpecialPinchGestureRecognizer) {
         if sender.state == .Ended {
             mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
-            renderMainExpression()
+            renderMainExpressionInHolder()
         } else if sender.state == .Changed {
             for constraint in sender.constraintSet {
                 constraint.constant = 60*sender.scale - 50
@@ -281,7 +283,7 @@ class ViewController: UIViewController {
                     sender.productExpression.swap(sender.mostRecentIndex!, index2: initialIndex)
                     sender.view!.hidden = false
                     sender.newCopyStore.removeFromSuperview()
-                    self.renderMainExpression()
+                    self.renderMainExpressionInHolder()
 
             })
 
