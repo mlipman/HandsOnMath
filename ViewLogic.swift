@@ -36,25 +36,30 @@ class ExpressionView: UIView {
     }
 }
 
+// 1/3 todo/note: I think this isn't needed, since the view
+// would have an expression that it can access
 class SpecialTapGestureRecognizer: UITapGestureRecognizer {
     var expression: Expression!
 }
 
+
+// 2/3 also, the view (or a subclass) should be able to have a constraint set
 class SpecialPinchGestureRecognizer: UIPinchGestureRecognizer {
     var expression: Expression!
     var constraintSet: [NSLayoutConstraint] = []
 }
 
+// 3/3 and all these other things too
 class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
     var expression: Expression!
     var parentView: UIView!
     var xConstraint: NSLayoutConstraint!
+    var yConstraint: NSLayoutConstraint!
     var newCopyStore: ExpressionView!
     var viewToDistance = [UIView:CGFloat]()
     var minXCoord: CGFloat!
     var mostRecentIndex: Int?
     var productExpression: ProductExpression!
-    var constraintToAnimateFor: NSLayoutConstraint!
 
     func indexForView(input: UIView) -> Int {
         let dist = input.center.x - minXCoord

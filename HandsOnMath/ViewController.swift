@@ -93,7 +93,6 @@ class ViewController: UIViewController {
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
         let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
         pincher.expression = prod
-        let panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
         let container = UIView()
         container.translatesAutoresizingMaskIntoConstraints = false
         if prod.elements.count == 0 {
@@ -106,6 +105,10 @@ class ViewController: UIViewController {
         var firstElemSet = false
         var prev = container
         for elem in prod.elements {
+            let panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
+            panner.productExpression = prod
+
+
             let currView = renderExpression(elem)
 
             container.addSubview(currView)
@@ -160,7 +163,6 @@ class ViewController: UIViewController {
         let exprView = ExpressionView()
         exprView.expression = prod
         exprView.consume(container)
-        panner.productExpression = prod
 
         container.addGestureRecognizer(pincher)
         return exprView
@@ -244,36 +246,38 @@ class ViewController: UIViewController {
             let newCopy = renderExpression(sender.expression)
             sender.newCopyStore = newCopy
             sender.parentView.addSubview(newCopy)
-            let constraintToAnimate = NSLayoutConstraint(
-                item: sender.view!, attribute: .CenterY,
-                relatedBy: .Equal,
-                toItem: newCopy, attribute: .CenterY,
-                multiplier: 1, constant: 0)
-            sender.parentView.addConstraint(constraintToAnimate)
-            sender.constraintToAnimateFor = constraintToAnimate
+
             let xCnstr = NSLayoutConstraint(
                 item: newCopy, attribute: .CenterX,
                 relatedBy: .Equal,
                 toItem: sender.view!, attribute: .CenterX,
                 multiplier: 1, constant: 0)
+            let yCnstr = NSLayoutConstraint(
+                item: newCopy, attribute: .CenterY,
+                relatedBy: .Equal,
+                toItem: sender.view!, attribute: .CenterY,
+                multiplier: 1, constant: 0)
             sender.parentView.addConstraint(xCnstr)
-            sender.parentView.layoutIfNeeded()
+            sender.parentView.addConstraint(yCnstr)
 
             sender.xConstraint = xCnstr
-            constraintToAnimate.constant = 60
-            UIView.animateWithDuration(Double(0.3), animations: {
-                sender.parentView.layoutIfNeeded()
-            })
+            sender.yConstraint = yCnstr
+            sender.parentView.layoutIfNeeded()
+
 
         } else if sender.state == .Changed {
             sender.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
-                let newIndex = sender.indexForView(sender.newCopyStore!)
+            sender.yConstraint.constant = sender.translationInView(sender.view!.superview!).y
+            let newIndex = sender.indexForView(sender.newCopyStore!)
             if newIndex != sender.mostRecentIndex {
                 sender.mostRecentIndex = newIndex
+                // rerender with hole (and don't kill newCopy)
             }
+            sender.parentView.layoutIfNeeded()
+
 
         } else if [.Ended, .Failed, .Cancelled].contains(sender.state) {
-            sender.constraintToAnimateFor.constant = 0
+            // todo: animate to new position
             UIView.animateWithDuration(Double(0.4),
                 animations: { () -> Void in
                     sender.parentView.layoutIfNeeded()
