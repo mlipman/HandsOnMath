@@ -222,13 +222,13 @@ class ViewController: UIViewController {
     }
 
     func exponentTapped(sender: SpecialTapGestureRecognizer) {
-        mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
+        //mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
         renderMainExpressionInHolder()
     }
 
     func prodPinched(sender: SpecialPinchGestureRecognizer) {
         if sender.state == .Ended {
-            mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
+            //mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
             renderMainExpressionInHolder()
         } else if sender.state == .Changed {
             for constraint in sender.constraintSet {
