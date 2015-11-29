@@ -56,9 +56,7 @@ class ViewController: UIViewController {
         let y = Variable(lttr: "y")
         let z = Variable(lttr: "z")
         let xfif = ExponentExpression(bse: x, exp: 5)
-        _ = ProductExpression(elems: [x, xfif])
-        let first: Expression = xfif
-        let ans = ProductExpression(elems: [first,y,z,x])
+        let ans = ProductExpression(elems: [xfif,y,z,x])
         return ans
     }
 
