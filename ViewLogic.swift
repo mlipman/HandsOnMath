@@ -36,6 +36,14 @@ class ExpressionView: UIView {
     }
 }
 
+class IndicatorView: UIView {
+
+}
+
+class ProductExpressionView: ExpressionView {
+    var startedIndicator: IndicatorView? = nil
+}
+
 // 1/3 todo/note: I think this isn't needed, since the view
 // would have an expression that it can access
 class SpecialTapGestureRecognizer: UITapGestureRecognizer {
@@ -44,10 +52,12 @@ class SpecialTapGestureRecognizer: UITapGestureRecognizer {
 
 
 // 2/3 also, the view (or a subclass) should be able to have a constraint set
+/*
 class SpecialPinchGestureRecognizer: UIPinchGestureRecognizer {
     var expression: Expression!
     var constraintSet: [NSLayoutConstraint] = []
 }
+*/
 
 // 3/3 and all these other things too
 class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
@@ -78,16 +88,27 @@ class SpecialPanGestureRecognizer: UIPanGestureRecognizer {
         }
         var allDistances = [CGFloat]()
         for child in self.parentView.subviews {
-            allDistances.append(child.center.x)
+            if !(child is IndicatorView) {
+                allDistances.append(child.center.x)
+            }
         }
 
         minXCoord = allDistances.minElement()!
         for child in self.parentView.subviews {
-            viewToDistance[child] = child.center.x - minXCoord
+            if !(child is IndicatorView) {
+                viewToDistance[child] = child.center.x - minXCoord
+            }
         }
     }
 
 }
+
+/*
+UX idea:
+blue bar below repeating stretches, with small arrow down, lets you
+pull the stretch together
+red bar above simple exponenents, with arrow up, lets you pull it apart
+*/
 
 
 

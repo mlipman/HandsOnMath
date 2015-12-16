@@ -16,6 +16,14 @@ protocol Expression: NSObjectProtocol {
 protocol UnitExpression: Expression {
     // would rather do something like type of other is self if possible
     func dotEquals(other: UnitExpression) -> Bool
+
+    // ranges that can be contracted inside a prodcut expression
+    // are marked with a unit expression that has isStart of true
+    // and one that has isEnd as false
+    // if they are misordered or mismatched, the code that
+    // genereated them is wrong
+    var isStart: Bool {get set}
+    var isEnd: Bool {get set}
 }
 
 class ExponentExpression: NSObject, UnitExpression {
@@ -23,9 +31,14 @@ class ExponentExpression: NSObject, UnitExpression {
     init(bse: UnitExpression, exp: Int?) {
         exponent = exp ?? 1
         base = bse
+        isStart = false
+        isEnd = false
     }
     var exponent: Int
     var base: UnitExpression
+    var isStart : Bool
+    var isEnd : Bool
+
     func to_string() -> String {
         return "((" + base.to_string() + ")^(" + String(exponent) + "))"
     }
@@ -49,18 +62,12 @@ class ExponentExpression: NSObject, UnitExpression {
 
 }
 
-struct ElgibleSlice {
-    var begin: Int!
-    var end: Int!
-}
-
 class ProductExpression: NSObject, Expression {
     var elements: [UnitExpression]
-    var elegibleSlices: [ElgibleSlice]
 
     init(elems: [UnitExpression]) {
         elements = elems
-        elegibleSlices = ProductExpression.findSlices(elems)
+        ProductExpression.markSlices(elems)
 
     }
 
@@ -73,6 +80,7 @@ class ProductExpression: NSObject, Expression {
         let temp = elements[index1]
         elements[index1] = elements[index2]
         elements[index2] = temp
+        ProductExpression.markSlices(elements)
     }
 
     func contract() -> ExponentExpression {
@@ -94,11 +102,14 @@ class ProductExpression: NSObject, Expression {
     for test in test_ranges:
     print ("%s %s %s" % (test[0], returnRanges(test[0]), test[1]))
     */
-    class func findSlices(elems: [UnitExpression]) -> [ElgibleSlice] {
-        if elems.count < 2 {
-            return []
+    class func markSlices(elems: [UnitExpression]) {
+        for elem in elems {
+            elem.isStart = false;
+            elem.isEnd = false;
         }
-        var ranges = [ElgibleSlice]()
+        if elems.count < 2 {
+            return
+        }
         var prev = elems[0]
         var currStart: Int? = nil
 
@@ -109,17 +120,17 @@ class ProductExpression: NSObject, Expression {
             if curr.dotEquals(prev) {
                 if currStart == nil {
                     currStart = i-1
+                    elems[i-1].isStart = true
                 }
             } else if currStart != nil {
-                ranges.append(ElgibleSlice(begin: currStart, end: i))
+                elems[i-1].isEnd = true
                 currStart = nil
             }
             prev = curr
         }
         if currStart != nil {
-            ranges.append(ElgibleSlice(begin: currStart, end: elems.count))
+            elems.last!.isEnd = true
         }
-        return ranges
     }
 
 
@@ -142,9 +153,13 @@ class DivisorExpression: NSObject, Expression {
 class Variable: NSObject, UnitExpression {
     init(lttr: String) {
         letter = lttr
+        isStart = false
+        isEnd = false
     }
 
     var letter: String
+    var isStart : Bool
+    var isEnd : Bool
 
     func to_string() -> String {
         if ["/", "^", "(", ")", "•"].contains(letter) {
@@ -161,4 +176,6 @@ class Variable: NSObject, UnitExpression {
             return false
         }
     }
+
+
 }

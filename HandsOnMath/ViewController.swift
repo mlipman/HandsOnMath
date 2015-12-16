@@ -53,10 +53,14 @@ class ViewController: UIViewController {
 
     func getExpr() -> ProductExpression {
         let x = Variable(lttr: "x")
+        let x2 = Variable(lttr: "x")
+        let x3 = Variable(lttr: "x")
+        let x4 = Variable(lttr: "x")
         let y = Variable(lttr: "y")
+        let y2 = Variable(lttr: "y")
         let z = Variable(lttr: "z")
-        let xfif = ExponentExpression(bse: x, exp: 5)
-        let ans = ProductExpression(elems: [xfif,y,z,x])
+        let xtothe5 = ExponentExpression(bse: x, exp: 5)
+        let ans = ProductExpression(elems: [z,x,xtothe5,x2,x3,x4,y,y2])
         return ans
     }
 
@@ -89,9 +93,7 @@ class ViewController: UIViewController {
     }
 
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
-        let pincher = SpecialPinchGestureRecognizer(target: self, action: "prodPinched:")
-        pincher.expression = prod
-        let container = UIView()
+        let container = ProductExpressionView()
         container.translatesAutoresizingMaskIntoConstraints = false
         if prod.elements.count == 0 {
             // not sure why this is necessary
@@ -101,24 +103,21 @@ class ViewController: UIViewController {
         }
 
         var firstElemSet = false
-        var prev = container
+        var prev = container as ExpressionView
         for elem in prod.elements {
             let panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
             panner.productExpression = prod
-
-
             let currView = renderExpression(elem)
-
             container.addSubview(currView)
 
             container.addConstraint(NSLayoutConstraint(
-                item: currView, attribute: .CenterY,
+                item: currView, attribute: .Top,
                 relatedBy: .Equal,
-                toItem: prev, attribute: .CenterY,
+                toItem: prev, attribute: .Top,
                 multiplier: 1, constant: 0))
             if !firstElemSet {
                 container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "V:|[curr]|",
+                    "V:|[curr]-25-|",
                     options: [],
                     metrics: [:],
                     views: [
@@ -131,8 +130,7 @@ class ViewController: UIViewController {
                     metrics: [:],
                     views: [
                         "curr": currView
-                    ])
-                )
+                    ]))
             } else {
                 let START = CGFloat(10.0) // distance between factors in a product
                 let constraint = NSLayoutConstraint(
@@ -142,13 +140,50 @@ class ViewController: UIViewController {
                     multiplier: 1, constant: START
                 )
                 container.addConstraint(constraint)
-                pincher.constraintSet.append(constraint)
+                //pincher.constraintSet.append(constraint)
             }
             panner.expression = elem
             panner.parentView = container
             currView.addGestureRecognizer(panner)
             firstElemSet = true
             prev = currView
+
+            if elem.isStart {
+                let indicator = IndicatorView()
+                indicator.translatesAutoresizingMaskIntoConstraints = false
+                container.addSubview(indicator)
+                indicator.backgroundColor = UIColor.blueColor()
+                indicator.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+                    "V:[indicator(20)]",
+                    options: [],
+                    metrics: [:],
+                    views: [
+                        "indicator": indicator
+                    ]))
+                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
+                    "V:[currView][indicator]",
+                    options: [],
+                    metrics: [:],
+                    views: [
+                        "indicator": indicator,
+                        "currView": currView
+                    ]))
+                container.addConstraint(NSLayoutConstraint(
+                    item: indicator, attribute: .Leading,
+                    relatedBy: .Equal,
+                    toItem: currView, attribute: .Leading,
+                    multiplier: 1, constant: 0))
+                container.startedIndicator = indicator
+
+            }
+            if elem.isEnd {
+                container.addConstraint(NSLayoutConstraint(
+                    item: container.startedIndicator!, attribute: .Trailing,
+                    relatedBy: .Equal,
+                    toItem: currView, attribute: .Trailing,
+                    multiplier: 1, constant: 0))
+                container.startedIndicator = nil
+            }
         }
         container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "H:[last]|",
@@ -162,7 +197,16 @@ class ViewController: UIViewController {
         exprView.expression = prod
         exprView.consume(container)
 
-        container.addGestureRecognizer(pincher)
+        //container.addGestureRecognizer(pincher)
+
+
+        // for each eligible range in the product expression
+        // add a view containing those children
+        // and that view should have indicators on the bottom corners
+        // and a pinch recognizer
+
+
+
         return exprView
     }
 
@@ -226,7 +270,10 @@ class ViewController: UIViewController {
         renderMainExpressionInHolder()
     }
 
+    /*
     func prodPinched(sender: SpecialPinchGestureRecognizer) {
+        let expString = (sender.view! as! ExpressionView).expression.to_string()
+        print("\(expString) pinched")
         if sender.state == .Ended {
             //mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
             renderMainExpressionInHolder()
@@ -236,6 +283,7 @@ class ViewController: UIViewController {
             }
         }
     }
+    */
 
     func childPanned(sender: SpecialPanGestureRecognizer) {
         if sender.state == .Began {
@@ -266,7 +314,10 @@ class ViewController: UIViewController {
         } else if sender.state == .Changed {
             sender.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
             sender.yConstraint.constant = sender.translationInView(sender.view!.superview!).y
+            // indexForView will ignore the range marker views,
+            // and figure out the real index in the expression
             let newIndex = sender.indexForView(sender.newCopyStore!)
+            print(newIndex)
             if newIndex != sender.mostRecentIndex {
                 sender.mostRecentIndex = newIndex
                 // rerender with hole (and don't kill newCopy)
