@@ -76,10 +76,8 @@ class ProductExpression: NSObject, Expression {
         return descs.joinWithSeparator("•")
     }
 
-    func swap(index1: Int, index2: Int) {
-        let temp = elements[index1]
-        elements[index1] = elements[index2]
-        elements[index2] = temp
+    func jumpTo(index1: Int, from: Int) {
+        elements.insert(elements.removeAtIndex(from), atIndex: index1)
         ProductExpression.markSlices(elements)
     }
 

@@ -333,7 +333,7 @@ class ViewController: UIViewController {
                 },
                 completion: { (completed: Bool) -> Void in
                     let initialIndex = sender.indexForView(sender.view!)
-                    sender.productExpression.swap(sender.mostRecentIndex!, index2: initialIndex)
+                    sender.productExpression.jumpTo(sender.mostRecentIndex!, from: initialIndex)
                     sender.view!.hidden = false
                     sender.newCopyStore.removeFromSuperview()
                     self.renderMainExpressionInHolder()
