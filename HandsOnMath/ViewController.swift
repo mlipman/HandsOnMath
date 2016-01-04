@@ -9,26 +9,57 @@
 import UIKit
 
 class ViewController: UIViewController {
-
     var bigFont = UIFont.systemFontOfSize(100)
     var smallFont = UIFont.systemFontOfSize(60)
-
-    @IBOutlet weak var holder: UIView!
+    var mainHolder: UIView!
+    var tempHolder: UIView!
     var mainExpression: Expression!
-
 
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        mainHolder = UIView()
+        view.addSubview(mainHolder)
+        mainHolder.translatesAutoresizingMaskIntoConstraints = false
+        view.addConstraint(NSLayoutConstraint(
+            item: mainHolder, attribute: .CenterY,
+            relatedBy: .Equal,
+            toItem: view, attribute: .CenterY,
+            multiplier: 1, constant: 0
+        ))
+        view.addConstraint(NSLayoutConstraint(
+            item: mainHolder, attribute: .CenterX,
+            relatedBy: .Equal,
+            toItem: view, attribute: .CenterX,
+            multiplier: 1, constant: 0
+        ))
+
+        // different widths of elements might mess up indexForView stuff
+        tempHolder = UIView()
+        view.addSubview(tempHolder)
+        tempHolder.translatesAutoresizingMaskIntoConstraints = false
+        view.addConstraint(NSLayoutConstraint(
+            item: tempHolder, attribute: .CenterY,
+            relatedBy: .Equal,
+            toItem: view, attribute: .CenterY,
+            multiplier: 1, constant: 0
+        ))
+        view.addConstraint(NSLayoutConstraint(
+            item: tempHolder, attribute: .CenterX,
+            relatedBy: .Equal,
+            toItem: view, attribute: .CenterX,
+            multiplier: 1, constant: 0
+        ))
+
         mainExpression = getExpr()
-        renderMainExpressionInHolder()
+        render(mainExpression, holder: mainHolder)
     }
 
+    func render(expr: Expression, holder: UIView) {
+        // Backbone: ret = new ExpressionView({model: mainExpression}).render()
+        let ret = renderExpression(expr)
 
-    func renderMainExpressionInHolder() {
-        // ret = new ExpressionView({model: mainExpression}).render()
-        let ret = renderExpression(mainExpression)
-
-        // $(holder).html(ret.$el)
+        // Backbone: $(holder).html(ret.$el)
         for vieww in holder.subviews {
             vieww.removeFromSuperview()
         }
@@ -52,13 +83,13 @@ class ViewController: UIViewController {
     }
 
     func getExpr() -> ProductExpression {
+        let z = Variable(lttr: "y")
         let x = Variable(lttr: "x")
-        let x2 = Variable(lttr: "x")
+        let x2 = Variable(lttr: "b")
         let x3 = Variable(lttr: "x")
-        let x4 = Variable(lttr: "x")
-        let y = Variable(lttr: "y")
+        let x4 = Variable(lttr: "d")
+        let y = Variable(lttr: "e")
         let y2 = Variable(lttr: "y")
-        let z = Variable(lttr: "z")
         let xtothe5 = ExponentExpression(bse: x, exp: 5)
         let ans = ProductExpression(elems: [z,x,xtothe5,x2,x3,x4,y,y2])
         return ans
@@ -72,6 +103,8 @@ class ViewController: UIViewController {
         } else if let expExpr = expression as? ExponentExpression {
             // TODO support complex exponent expressions
             currView = renderSimpleExp(expExpr)
+        } else if let _ = expression as? Blank {
+            currView = renderBlankExpression()
         } else {
             // almost fully generalized
             let prodExpr = expression as! ProductExpression
@@ -92,8 +125,19 @@ class ViewController: UIViewController {
         return exprView
     }
 
+    func renderBlankExpression() -> ExpressionView {
+        let firstLabel = UILabel()
+        firstLabel.translatesAutoresizingMaskIntoConstraints = false
+        firstLabel.font = bigFont
+        firstLabel.text = "_"
+        let exprView = ExpressionView()
+        exprView.consume(firstLabel)
+        return exprView
+    }
+
     func renderProductExp(prod: ProductExpression) -> ExpressionView {
         let container = ProductExpressionView()
+        container.expression = prod
         container.translatesAutoresizingMaskIntoConstraints = false
         if prod.elements.count == 0 {
             // not sure why this is necessary
@@ -105,9 +149,12 @@ class ViewController: UIViewController {
         var firstElemSet = false
         var prev = container as ExpressionView
         for elem in prod.elements {
-            let panner = SpecialPanGestureRecognizer(target: self, action: "childPanned:")
-            panner.productExpression = prod
+
+            let panner = UIPanGestureRecognizer(target: self, action: "childPanned:")
             let currView = renderExpression(elem)
+            currView.productExpression = prod
+            currView.placeInParent = prod.elements.indexOf({$0 === elem})!
+            currView.vcview = self.view
             container.addSubview(currView)
 
             container.addConstraint(NSLayoutConstraint(
@@ -115,6 +162,7 @@ class ViewController: UIViewController {
                 relatedBy: .Equal,
                 toItem: prev, attribute: .Top,
                 multiplier: 1, constant: 0))
+
             if !firstElemSet {
                 container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
                     "V:|[curr]-25-|",
@@ -131,6 +179,7 @@ class ViewController: UIViewController {
                     views: [
                         "curr": currView
                     ]))
+
             } else {
                 let START = CGFloat(10.0) // distance between factors in a product
                 let constraint = NSLayoutConstraint(
@@ -142,8 +191,9 @@ class ViewController: UIViewController {
                 container.addConstraint(constraint)
                 //pincher.constraintSet.append(constraint)
             }
-            panner.expression = elem
-            panner.parentView = container
+
+            currView.expression = elem
+            currView.myParentView = container
             currView.addGestureRecognizer(panner)
             firstElemSet = true
             prev = currView
@@ -174,8 +224,8 @@ class ViewController: UIViewController {
                     toItem: currView, attribute: .Leading,
                     multiplier: 1, constant: 0))
                 container.startedIndicator = indicator
-
             }
+
             if elem.isEnd {
                 container.addConstraint(NSLayoutConstraint(
                     item: container.startedIndicator!, attribute: .Trailing,
@@ -185,6 +235,7 @@ class ViewController: UIViewController {
                 container.startedIndicator = nil
             }
         }
+
         container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
             "H:[last]|",
             options: [],
@@ -193,21 +244,9 @@ class ViewController: UIViewController {
                 "last": prev
             ])
         )
-        let exprView = ExpressionView()
-        exprView.expression = prod
-        exprView.consume(container)
 
         //container.addGestureRecognizer(pincher)
-
-
-        // for each eligible range in the product expression
-        // add a view containing those children
-        // and that view should have indicators on the bottom corners
-        // and a pinch recognizer
-
-
-
-        return exprView
+        return container
     }
 
 
@@ -267,7 +306,7 @@ class ViewController: UIViewController {
 
     func exponentTapped(sender: SpecialTapGestureRecognizer) {
         //mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
-        renderMainExpressionInHolder()
+        render(mainExpression, holder: mainHolder)
     }
 
     /*
@@ -285,96 +324,59 @@ class ViewController: UIViewController {
     }
     */
 
-    func childPanned(sender: SpecialPanGestureRecognizer) {
+    // should move this into ViewLogic file
+    func childPanned(sender: UIPanGestureRecognizer) {
+        let panned = sender.view as! ExpressionView
         if sender.state == .Began {
-            sender.setUpViewToDistance()
-            sender.view!.hidden = true
-            let newCopy = renderExpression(sender.expression)
-            sender.newCopyStore = newCopy
-            sender.parentView.addSubview(newCopy)
-
+            panned.setUpViewToDistance()
+            let newCopy = renderExpression(panned.expression)
+            panned.newCopyStore = newCopy
+            self.view.addSubview(newCopy)
+            
             let xCnstr = NSLayoutConstraint(
                 item: newCopy, attribute: .CenterX,
                 relatedBy: .Equal,
-                toItem: sender.view!, attribute: .CenterX,
+                toItem: panned, attribute: .CenterX,
                 multiplier: 1, constant: 0)
             let yCnstr = NSLayoutConstraint(
                 item: newCopy, attribute: .CenterY,
                 relatedBy: .Equal,
-                toItem: sender.view!, attribute: .CenterY,
+                toItem: panned, attribute: .CenterY,
                 multiplier: 1, constant: 0)
-            sender.parentView.addConstraint(xCnstr)
-            sender.parentView.addConstraint(yCnstr)
+            view.addConstraint(xCnstr)
+            view.addConstraint(yCnstr)
 
-            sender.xConstraint = xCnstr
-            sender.yConstraint = yCnstr
-            sender.parentView.layoutIfNeeded()
+            panned.xConstraint = xCnstr
+            panned.yConstraint = yCnstr
+            view.layoutIfNeeded()
 
+            mainHolder.hidden = true
+            tempHolder.hidden = false
+            let mainProductExp = mainExpression as! ProductExpression
+            let place = panned.placeInParent
+            let newView = mainProductExp.moveElem(place, toBlankAt: place)
+            render(newView, holder: tempHolder)
 
         } else if sender.state == .Changed {
-            sender.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
-            sender.yConstraint.constant = sender.translationInView(sender.view!.superview!).y
-            // indexForView will ignore the range marker views,
-            // and figure out the real index in the expression
-            let newIndex = sender.indexForView(sender.newCopyStore!)
-            print(newIndex)
-            if newIndex != sender.mostRecentIndex {
-                sender.mostRecentIndex = newIndex
-                // rerender with hole (and don't kill newCopy)
+            panned.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
+            panned.yConstraint.constant = sender.translationInView(sender.view!.superview!).y
+            let newIndex = panned.indexForView(panned.newCopyStore!)
+            if newIndex != panned.mostRecentIndex {
+                panned.mostRecentIndex = newIndex
+                let mainProductExp = mainExpression as! ProductExpression
+                let newView = mainProductExp.moveElem(panned.placeInParent, toBlankAt:newIndex)
+                render(newView, holder: tempHolder)
+                
             }
-            sender.parentView.layoutIfNeeded()
-
+            panned.myParentView.layoutIfNeeded()
 
         } else if [.Ended, .Failed, .Cancelled].contains(sender.state) {
-            // todo: animate to new position
-            UIView.animateWithDuration(Double(0.4),
-                animations: { () -> Void in
-                    sender.parentView.layoutIfNeeded()
-                },
-                completion: { (completed: Bool) -> Void in
-                    let initialIndex = sender.indexForView(sender.view!)
-                    sender.productExpression.jumpTo(sender.mostRecentIndex!, from: initialIndex)
-                    sender.view!.hidden = false
-                    sender.newCopyStore.removeFromSuperview()
-                    self.renderMainExpressionInHolder()
-
-            })
-
+            panned.productExpression.jumpTo(panned.mostRecentIndex!, from: panned.placeInParent)
+            render(mainExpression, holder: mainHolder)
+            panned.newCopyStore.removeFromSuperview()
+            mainHolder.hidden = false
+            tempHolder.hidden = true
+            // TODO: get animation working, need to find position to animate to
         }
-
-        // join where possible
     }
 }
-
-/*
-calculatorbrain has a divisorofexpression
-whcich has a numeratorexp and denominator exp
-
-numeratorexp is an expression (abstract)
-
-can be either expexpression or product expression
-
-exp has an expression as base and an integer exponent
-
-
-product expression has an array of expressions
-
-
-important actions:
-exp expression can be expanded: base^exp becomes product expression of length exp, with base as all elements
-
-
-complex:
-product expressions can of course be nested
-after an action, if a product expression is next to another, they combine
-maybe: group: start underneath or at group button, drag within product to group
-
-product expressions should be analyzed for chains, they
-
-
-
-
-
-
-
-*/

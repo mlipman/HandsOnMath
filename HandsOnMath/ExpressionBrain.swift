@@ -11,6 +11,8 @@ import Foundation
 
 protocol Expression: NSObjectProtocol {
     func to_string() -> String
+    //var identifier: Int {get set}
+    //func ==(lhs: Expression, rhs: Expression) -> Bool
 }
 
 protocol UnitExpression: Expression {
@@ -24,9 +26,11 @@ protocol UnitExpression: Expression {
     // genereated them is wrong
     var isStart: Bool {get set}
     var isEnd: Bool {get set}
+
 }
 
 class ExponentExpression: NSObject, UnitExpression {
+    static var identifier: Int = 0
     // losing support for (xyz)^3
     init(bse: UnitExpression, exp: Int?) {
         exponent = exp ?? 1
@@ -59,6 +63,11 @@ class ExponentExpression: NSObject, UnitExpression {
         }
     }
 
+    /*
+    func ==(lhs: Expression, rhs: Expression) -> Bool {
+        return lhs.identifier === rhs.identifier
+    }
+    */
 
 }
 
@@ -77,7 +86,11 @@ class ProductExpression: NSObject, Expression {
     }
 
     func jumpTo(index1: Int, from: Int) {
-        elements.insert(elements.removeAtIndex(from), atIndex: index1)
+        if (index1 < elements.count) {
+            elements.insert(elements.removeAtIndex(from), atIndex: index1)
+        } else {
+            elements.append(elements.removeAtIndex(from))
+        }
         ProductExpression.markSlices(elements)
     }
 
@@ -85,6 +98,27 @@ class ProductExpression: NSObject, Expression {
         // could validate that all elements are the same
         return ExponentExpression(bse: elements[0], exp: elements.count)
     }
+
+    func selfWithHoleAt(index: Int) -> ProductExpression {
+        // should I be deep copying?
+        var newElems = self.elements
+        newElems[index] = Blank(blah: "")
+        return ProductExpression(elems: newElems)
+    }
+
+    func moveElem(from: Int, toBlankAt: Int) -> ProductExpression {
+        // should I be deep copying?
+        var newElems = self.elements
+        newElems.removeAtIndex(from)
+        if (toBlankAt < newElems.count) {
+            newElems.insert(Blank(blah: ""), atIndex: toBlankAt)
+        } else {
+            newElems.append(Blank(blah: ""))
+        }
+        return ProductExpression(elems: newElems)
+
+    }
+
 
 
     /*
@@ -173,6 +207,25 @@ class Variable: NSObject, UnitExpression {
         } else {
             return false
         }
+    }
+
+}
+
+class Blank: NSObject, UnitExpression {
+    init(blah: String) {
+        isStart = false
+        isEnd = false
+    }
+
+    var isStart : Bool
+    var isEnd : Bool
+
+    func to_string() -> String {
+        return "_"
+    }
+
+    func dotEquals(other: UnitExpression) -> Bool {
+        return false
     }
 
 
