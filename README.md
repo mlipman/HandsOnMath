@@ -1,5 +1,7 @@
 # HandsOnMath
-An interactive way to discover mathematical principles built at HackingEDU 2015
+I think that software applications have the potential to be extraordinarily better for learning than textbooks, videos, or lectures. This is one attempt to show what that might look like.
+
+I started it at HackingEDU hackathon and have been contiuning to work on it a bit. Below is the write up I made for the hackathon.
 
 
 ## Teaching and Learning
