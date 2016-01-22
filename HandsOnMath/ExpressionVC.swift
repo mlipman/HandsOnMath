@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  ExpressionVC.swift
 //  HandsOnMath
 //
 //  Created by Michael Lipman on 10/24/15.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class ExpressionVC: UIViewController {
     var bigFont = UIFont.systemFontOfSize(100)
     var smallFont = UIFont.systemFontOfSize(60)
     var mainHolder: UIView!
