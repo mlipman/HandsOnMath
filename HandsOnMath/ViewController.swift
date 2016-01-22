@@ -83,16 +83,21 @@ class ViewController: UIViewController {
     }
 
     func getExpr() -> ProductExpression {
-        let z = Variable(lttr: "y")
-        let x = Variable(lttr: "x")
-        let x2 = Variable(lttr: "b")
-        let x3 = Variable(lttr: "x")
-        let x4 = Variable(lttr: "x")
-        let y = Variable(lttr: "e")
-        let y2 = Variable(lttr: "y")
-        let xtothe5 = ExponentExpression(bse: x, exp: 5)
-        let ans = ProductExpression(elems: [z,x,xtothe5,x2,x3,x4,y,y2])
-        return ans
+        let letters = ["x", "y", "z", "w"]
+        var terms = [UnitExpression]()
+        for _ in 0..<5 {
+            let i = Int(arc4random())%letters.count
+            let variable = Variable(lttr: letters[i])
+            if (Int(arc4random())%2 == 0) {
+                terms.append(variable)
+            } else {
+                let exponent = Int(arc4random())%4 + 2
+                terms.append(
+                    ExponentExpression(bse: variable, exp: exponent)
+                )
+            }
+        }
+        return ProductExpression(elems: terms)
     }
 
 
