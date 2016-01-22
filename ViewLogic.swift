@@ -30,7 +30,6 @@ class ExpressionView: UIView {
 
         var counter = 0
         for (_, viewDist) in viewToDistance {
-            //print(vieww.frame)
             if dist > viewDist {
                 counter += 1
             }
@@ -78,14 +77,13 @@ class ExpressionView: UIView {
 }
 
 class IndicatorView: UIView {
+    var start: Int!
+    var end: Int!
+    weak var productExpressionView: ProductExpressionView!
 }
 
 class ProductExpressionView: ExpressionView {
-    var startedIndicator: IndicatorView? = nil
-}
-
-class SpecialTapGestureRecognizer: UITapGestureRecognizer {
-    var expression: Expression!
+    var startedIndicator: IndicatorView!
 }
 
 /*
@@ -93,4 +91,14 @@ UX idea:
 blue bar below repeating stretches, with small arrow down, lets you
 pull the stretch together
 red bar above simple exponenents, with arrow up, lets you pull it apart
+
+
+blue bar below, on tap show vertical movement,
+pull down to contract
+
+red bar above (or same color)
+on tap show veritcal movement
+pull up to expand
+
+
 */

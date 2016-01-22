@@ -11,7 +11,6 @@ import Foundation
 
 protocol Expression: NSObjectProtocol {
     func to_string() -> String
-    //var identifier: Int {get set}
     //func ==(lhs: Expression, rhs: Expression) -> Bool
 }
 
@@ -94,11 +93,6 @@ class ProductExpression: NSObject, Expression {
         ProductExpression.markSlices(elements)
     }
 
-    func contract() -> ExponentExpression {
-        // could validate that all elements are the same
-        return ExponentExpression(bse: elements[0], exp: elements.count)
-    }
-
     func selfWithHoleAt(index: Int) -> ProductExpression {
         // should I be deep copying?
         var newElems = self.elements
@@ -116,24 +110,28 @@ class ProductExpression: NSObject, Expression {
             newElems.append(Blank(blah: ""))
         }
         return ProductExpression(elems: newElems)
+    }
+
+    func contractSlice(start: Int, end: Int) {
+        // todo: die if not all from start to end are the same
+        let base = elements[start]
+        elements[start...end] = [ExponentExpression(bse: base, exp: end-start+1)]
+        ProductExpression.markSlices(elements)
+    }
+
+    func expand(elem: ExponentExpression) {
+        let i = elements.indexOf({$0 === elem})!
+        var new = [UnitExpression]()
+        for _ in 0..<elem.exponent {
+            // not fully generalized: should copy base, even if not a Variable
+            new.append(Variable(lttr: (elem.base as! Variable).letter))
+        }
+        elements.replaceRange(i...i, with: new)
+        ProductExpression.markSlices(elements)
 
     }
 
-
-
-    /*
-    test_ranges = [
-        ("xxxxxyy", "0-5, 5-7"),
-        ("xyxyxq", "[]"),
-        ("asdfxxwwk", "4-6, 6-8"),
-        ("sddfyy", "1-3, 4-6"),
-        ("x", "[]"),
-        ("yyy", "0-3"),
-        ("asdeeefea", "3-6")
-    ]
-    for test in test_ranges:
-    print ("%s %s %s" % (test[0], returnRanges(test[0]), test[1]))
-    */
+    // class func because called in init, should be able to fix that
     class func markSlices(elems: [UnitExpression]) {
         for elem in elems {
             elem.isStart = false;
@@ -149,6 +147,8 @@ class ProductExpression: NSObject, Expression {
             if i == 0 {
                 continue
             }
+            // dotEquals is a bit of a hack
+            // I should look into comparables more and implement ==
             if curr.dotEquals(prev) {
                 if currStart == nil {
                     currStart = i-1

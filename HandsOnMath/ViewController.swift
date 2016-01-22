@@ -87,7 +87,7 @@ class ViewController: UIViewController {
         let x = Variable(lttr: "x")
         let x2 = Variable(lttr: "b")
         let x3 = Variable(lttr: "x")
-        let x4 = Variable(lttr: "d")
+        let x4 = Variable(lttr: "x")
         let y = Variable(lttr: "e")
         let y2 = Variable(lttr: "y")
         let xtothe5 = ExponentExpression(bse: x, exp: 5)
@@ -149,8 +149,8 @@ class ViewController: UIViewController {
         var firstElemSet = false
         var prev = container as ExpressionView
         for elem in prod.elements {
-
-            let panner = UIPanGestureRecognizer(target: self, action: "childPanned:")
+            let panner = UIPanGestureRecognizer(
+                target: self, action: "childPanned:")
             let currView = renderExpression(elem)
             currView.productExpression = prod
             currView.placeInParent = prod.elements.indexOf({$0 === elem})!
@@ -189,7 +189,6 @@ class ViewController: UIViewController {
                     multiplier: 1, constant: START
                 )
                 container.addConstraint(constraint)
-                //pincher.constraintSet.append(constraint)
             }
 
             currView.expression = elem
@@ -200,6 +199,9 @@ class ViewController: UIViewController {
 
             if elem.isStart {
                 let indicator = IndicatorView()
+                indicator.productExpressionView = container
+                container.startedIndicator = indicator
+                indicator.start = currView.placeInParent
                 indicator.translatesAutoresizingMaskIntoConstraints = false
                 container.addSubview(indicator)
                 indicator.backgroundColor = UIColor.blueColor()
@@ -223,16 +225,18 @@ class ViewController: UIViewController {
                     relatedBy: .Equal,
                     toItem: currView, attribute: .Leading,
                     multiplier: 1, constant: 0))
-                container.startedIndicator = indicator
+                indicator.addGestureRecognizer(
+                    UITapGestureRecognizer(target: self, action: "tappedIndicator:")
+                )
             }
 
             if elem.isEnd {
+                container.startedIndicator.end = currView.placeInParent
                 container.addConstraint(NSLayoutConstraint(
-                    item: container.startedIndicator!, attribute: .Trailing,
+                    item: container.startedIndicator, attribute: .Trailing,
                     relatedBy: .Equal,
                     toItem: currView, attribute: .Trailing,
                     multiplier: 1, constant: 0))
-                container.startedIndicator = nil
             }
         }
 
@@ -245,7 +249,6 @@ class ViewController: UIViewController {
             ])
         )
 
-        //container.addGestureRecognizer(pincher)
         return container
     }
 
@@ -296,25 +299,21 @@ class ViewController: UIViewController {
         exprView.expression = exp
         exprView.consume(container)
 
-
-        let tap = SpecialTapGestureRecognizer(target: self, action: "exponentTapped:")
-        tap.expression = exp
-        exprView.addGestureRecognizer(tap)
+        exprView.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: "exponentTapped:")
+        )
 
         return exprView
     }
 
-    func exponentTapped(sender: SpecialTapGestureRecognizer) {
-        //mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ExponentExpression).expand())
-        render(mainExpression, holder: mainHolder)
-    }
 
     /*
     func prodPinched(sender: SpecialPinchGestureRecognizer) {
         let expString = (sender.view! as! ExpressionView).expression.to_string()
         print("\(expString) pinched")
         if sender.state == .Ended {
-            //mainExpression = mainExpression.selfWithReplacement(sender.expression, new: (sender.expression as! ProductExpression).contract())
+            //mainExpression = mainExpression.selfWithReplacement(
+                sender.expression, new: (sender.expression as! ProductExpression).contract())
             renderMainExpressionInHolder()
         } else if sender.state == .Changed {
             for constraint in sender.constraintSet {
@@ -379,4 +378,22 @@ class ViewController: UIViewController {
             // TODO: get animation working, need to find position to animate to
         }
     }
+
+    func tappedIndicator(sender: UITapGestureRecognizer) {
+        let indicator = sender.view as! IndicatorView
+        let prod = indicator.productExpressionView.expression as! ProductExpression
+        prod.contractSlice(indicator.start, end: indicator.end)
+        render(prod, holder: mainHolder)
+    }
+
+    // refactor: the expression view would call expand on its parent
+    // instead of assuming the global mainExpression is the parent
+    func exponentTapped(sender: UITapGestureRecognizer) {
+        let expressionView = sender.view as! ExpressionView
+        let exponentExpression  = expressionView.expression as! ExponentExpression
+        (mainExpression as! ProductExpression).expand(exponentExpression)
+        render(mainExpression, holder: mainHolder)
+    }
+
 }
+
