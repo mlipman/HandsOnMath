@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1D6022AA1C56C92600B182B9 /* ExpressionTVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6022A91C56C92600B182B9 /* ExpressionTVC.swift */; };
+		1D6022AC1C56CF7300B182B9 /* ExpressionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D6022AB1C56CF7300B182B9 /* ExpressionCell.swift */; };
 		1D71DDE51BDB844700B01C14 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D71DDE41BDB844700B01C14 /* AppDelegate.swift */; };
 		1D71DDE81BDB844700B01C14 /* HandsOnMath.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 1D71DDE61BDB844700B01C14 /* HandsOnMath.xcdatamodeld */; };
 		1D71DDEA1BDB844700B01C14 /* ExpressionVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D71DDE91BDB844700B01C14 /* ExpressionVC.swift */; };
@@ -29,6 +31,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1D6022A91C56C92600B182B9 /* ExpressionTVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressionTVC.swift; sourceTree = "<group>"; };
+		1D6022AB1C56CF7300B182B9 /* ExpressionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExpressionCell.swift; sourceTree = "<group>"; };
 		1D71DDDF1BDB844700B01C14 /* HandsOnMath.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HandsOnMath.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D71DDE31BDB844700B01C14 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		1D71DDE41BDB844700B01C14 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -86,7 +90,9 @@
 				1DE3D3591BDCC40A00E8C234 /* ViewLogic.swift */,
 				1D71DDE41BDB844700B01C14 /* AppDelegate.swift */,
 				1D71DDE91BDB844700B01C14 /* ExpressionVC.swift */,
+				1D6022AB1C56CF7300B182B9 /* ExpressionCell.swift */,
 				1D71DDEB1BDB844700B01C14 /* Main.storyboard */,
+				1D6022A91C56C92600B182B9 /* ExpressionTVC.swift */,
 				1DE3D3571BDBFDE400E8C234 /* ExpressionBrain.swift */,
 				1D71DDEE1BDB844700B01C14 /* Images.xcassets */,
 				1D71DDF01BDB844700B01C14 /* LaunchScreen.xib */,
@@ -225,7 +231,9 @@
 			files = (
 				1DE3D3581BDBFDE400E8C234 /* ExpressionBrain.swift in Sources */,
 				1D71DDEA1BDB844700B01C14 /* ExpressionVC.swift in Sources */,
+				1D6022AC1C56CF7300B182B9 /* ExpressionCell.swift in Sources */,
 				1DE3D35A1BDCC40A00E8C234 /* ViewLogic.swift in Sources */,
+				1D6022AA1C56C92600B182B9 /* ExpressionTVC.swift in Sources */,
 				1D71DDE51BDB844700B01C14 /* AppDelegate.swift in Sources */,
 				1D71DDE81BDB844700B01C14 /* HandsOnMath.xcdatamodeld in Sources */,
 			);
