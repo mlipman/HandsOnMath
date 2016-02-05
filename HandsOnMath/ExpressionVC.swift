@@ -194,6 +194,9 @@ class ExpressionVC: UIViewController {
                     multiplier: 1, constant: START
                 )
                 container.addConstraint(constraint)
+                if let indicator = container.startedIndicator {
+                    indicator.horizontalConstraints.append(constraint)
+                }
             }
 
             currView.expression = elem
@@ -217,31 +220,42 @@ class ExpressionVC: UIViewController {
                     views: [
                         "indicator": indicator
                     ]))
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "V:[currView][indicator]",
-                    options: [],
-                    metrics: [:],
-                    views: [
-                        "indicator": indicator,
-                        "currView": currView
-                    ]))
-                container.addConstraint(NSLayoutConstraint(
+                let verticalDistance = NSLayoutConstraint(
+                    item: indicator, attribute: .Top,
+                    relatedBy: .Equal,
+                    toItem: currView, attribute: .Bottom,
+                    multiplier: 1, constant: 0
+                )
+                container.addConstraint(verticalDistance)
+                indicator.verticalDistance = verticalDistance
+                let leadingDistance = NSLayoutConstraint(
                     item: indicator, attribute: .Leading,
                     relatedBy: .Equal,
                     toItem: currView, attribute: .Leading,
-                    multiplier: 1, constant: 0))
+                    multiplier: 1, constant: 0
+                )
+                container.addConstraint(leadingDistance)
+                container.startedIndicator!.leadingDistance = leadingDistance
+
+                indicator.addGestureRecognizer(
+                    UIPanGestureRecognizer(target: self, action: "pannedIndicator:")
+                )
                 indicator.addGestureRecognizer(
                     UITapGestureRecognizer(target: self, action: "tappedIndicator:")
                 )
             }
 
             if elem.isEnd {
-                container.startedIndicator.end = currView.placeInParent
-                container.addConstraint(NSLayoutConstraint(
-                    item: container.startedIndicator, attribute: .Trailing,
+                container.startedIndicator!.end = currView.placeInParent
+                let trailingDistance = NSLayoutConstraint(
+                    item: container.startedIndicator!, attribute: .Trailing,
                     relatedBy: .Equal,
                     toItem: currView, attribute: .Trailing,
-                    multiplier: 1, constant: 0))
+                    multiplier: 1, constant: 0
+                )
+                container.addConstraint(trailingDistance)
+                container.startedIndicator!.trailingDistance = trailingDistance
+                container.startedIndicator = nil
             }
         }
 
@@ -375,7 +389,8 @@ class ExpressionVC: UIViewController {
             panned.myParentView.layoutIfNeeded()
 
         } else if [.Ended, .Failed, .Cancelled].contains(sender.state) {
-            panned.productExpression.jumpTo(panned.mostRecentIndex!, from: panned.placeInParent)
+            panned.productExpression.jumpTo(
+                panned.mostRecentIndex!, from: panned.placeInParent)
             render(mainExpression, holder: mainHolder)
             panned.newCopyStore.removeFromSuperview()
             mainHolder.hidden = false
@@ -384,11 +399,71 @@ class ExpressionVC: UIViewController {
         }
     }
 
-    func tappedIndicator(sender: UITapGestureRecognizer) {
+    func pannedIndicator(sender: UIPanGestureRecognizer) {
+        let DRAG_LENGTH: CGFloat = 100.0
         let indicator = sender.view as! IndicatorView
-        let prod = indicator.productExpressionView.expression as! ProductExpression
-        prod.contractSlice(indicator.start, end: indicator.end)
-        render(prod, holder: mainHolder)
+        let parent = indicator.productExpressionView
+        if indicator.initialWidth == nil {
+            indicator.initialWidth = indicator.frame.size.width
+        }
+
+        switch sender.state {
+        case .Changed:
+            let yChange = sender.translationInView(parent).y
+            if yChange > DRAG_LENGTH {
+                let indicator = sender.view as! IndicatorView
+                let prod = indicator.productExpressionView.expression as! ProductExpression
+                prod.contractSlice(indicator.start, end: indicator.end)
+                render(prod, holder: mainHolder)
+            } else if yChange > 0 {
+                // bug / weird behavior: longer than initial width at end of drag
+                let adjustment = (yChange/DRAG_LENGTH)*indicator.initialWidth!*0.4
+                indicator.verticalDistance.constant = yChange
+                indicator.leadingDistance.constant = adjustment
+                indicator.trailingDistance.constant = -1*adjustment
+                for constraint in indicator.horizontalConstraints {
+                    // put 10 as start in indicatorview class
+                    constraint.constant = 10 - 50*(yChange/DRAG_LENGTH)
+                }
+            } else {
+                indicator.verticalDistance.constant = 0
+                indicator.leadingDistance.constant = 0
+                indicator.trailingDistance.constant = 0
+                for constraint in indicator.horizontalConstraints {
+                    // put 10 as start in indicatorview class
+                    constraint.constant = 10
+                }
+            }
+        case .Ended:
+            indicator.verticalDistance.constant = 0
+            indicator.leadingDistance.constant = 0
+            indicator.trailingDistance.constant = 0
+            for constraint in indicator.horizontalConstraints {
+                // put 10 as start in indicatorview class
+                constraint.constant = 10
+            }
+        case .Began, .Possible, .Failed, .Cancelled:
+            break
+        }
+
+    }
+
+    func tappedIndicator(sender: UITapGestureRecognizer) {
+        // get indicator to bounce down and up, animiation not working
+        /*
+        let indicator = sender.view as! IndicatorView
+        indicator.verticalDistance.constant = 80
+        UIView.animateWithDuration(1.0, animations: { () -> Void in
+            indicator.setNeedsDisplay()
+        }, completion: { (completed) -> Void in
+            print("Done \(completed)")
+            //indicator.verticalDistance.constant = 0
+            UIView.animateWithDuration(0.500, animations: { () -> Void in
+                indicator.setNeedsDisplay()
+            })
+        })
+        */
+
     }
 
     // refactor: the expression view would call expand on its parent

@@ -43,7 +43,7 @@ class ExponentExpression: NSObject, UnitExpression {
     var isEnd : Bool
 
     func to_string() -> String {
-        return "((" + base.to_string() + ")^(" + String(exponent) + "))"
+        return "((" + base.to_string() + ")^" + String(exponent) + ")"
     }
 
     func expand() -> ProductExpression {

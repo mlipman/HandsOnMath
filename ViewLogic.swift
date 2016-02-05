@@ -80,10 +80,15 @@ class IndicatorView: UIView {
     var start: Int!
     var end: Int!
     weak var productExpressionView: ProductExpressionView!
+    var verticalDistance: NSLayoutConstraint!
+    var leadingDistance: NSLayoutConstraint!
+    var trailingDistance: NSLayoutConstraint!
+    var initialWidth: CGFloat?
+    var horizontalConstraints = [NSLayoutConstraint]()
 }
 
 class ProductExpressionView: ExpressionView {
-    var startedIndicator: IndicatorView!
+    var startedIndicator: IndicatorView?
 }
 
 /*
