@@ -9,8 +9,8 @@
 import UIKit
 
 class ExpressionVC: UIViewController {
-    var bigFont = UIFont.systemFontOfSize(100)
-    var smallFont = UIFont.systemFontOfSize(60)
+    var bigFont = UIFont.systemFont(ofSize: 100)
+    var smallFont = UIFont.systemFont(ofSize: 60)
     var mainHolder: UIView!
     var tempHolder: UIView!
     var mainExpression: Expression!
@@ -22,15 +22,15 @@ class ExpressionVC: UIViewController {
         view.addSubview(mainHolder)
         mainHolder.translatesAutoresizingMaskIntoConstraints = false
         view.addConstraint(NSLayoutConstraint(
-            item: mainHolder, attribute: .CenterY,
-            relatedBy: .Equal,
-            toItem: view, attribute: .CenterY,
+            item: mainHolder, attribute: .centerY,
+            relatedBy: .equal,
+            toItem: view, attribute: .centerY,
             multiplier: 1, constant: 0
         ))
         view.addConstraint(NSLayoutConstraint(
-            item: mainHolder, attribute: .CenterX,
-            relatedBy: .Equal,
-            toItem: view, attribute: .CenterX,
+            item: mainHolder, attribute: .centerX,
+            relatedBy: .equal,
+            toItem: view, attribute: .centerX,
             multiplier: 1, constant: 0
         ))
 
@@ -39,41 +39,41 @@ class ExpressionVC: UIViewController {
         view.addSubview(tempHolder)
         tempHolder.translatesAutoresizingMaskIntoConstraints = false
         view.addConstraint(NSLayoutConstraint(
-            item: tempHolder, attribute: .CenterY,
-            relatedBy: .Equal,
-            toItem: view, attribute: .CenterY,
+            item: tempHolder, attribute: .centerY,
+            relatedBy: .equal,
+            toItem: view, attribute: .centerY,
             multiplier: 1, constant: 0
         ))
         view.addConstraint(NSLayoutConstraint(
-            item: tempHolder, attribute: .CenterX,
-            relatedBy: .Equal,
-            toItem: view, attribute: .CenterX,
+            item: tempHolder, attribute: .centerX,
+            relatedBy: .equal,
+            toItem: view, attribute: .centerX,
             multiplier: 1, constant: 0
         ))
 
         mainExpression = getExpr()
-        render(mainExpression, holder: mainHolder)
+        render(expr: mainExpression, holder: mainHolder)
     }
 
     func render(expr: Expression, holder: UIView) {
         // Backbone: ret = new ExpressionView({model: mainExpression}).render()
-        let ret = renderExpression(expr)
+        let ret = renderExpression(expression: expr)
 
         // Backbone: $(holder).html(ret.$el)
         for vieww in holder.subviews {
             vieww.removeFromSuperview()
         }
         holder.addSubview(ret)
-        holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|[ret]|",
+        holder.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "V:|[ret]|",
             options: [],
             metrics: nil,
             views: [
                 "ret": ret
             ])
         )
-        holder.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "H:|[ret]|",
+        holder.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "H:|[ret]|",
             options: [],
             metrics: nil,
             views: [
@@ -104,16 +104,16 @@ class ExpressionVC: UIViewController {
     func renderExpression(expression: Expression) -> ExpressionView {
         let currView: ExpressionView
         if let variable = expression as? Variable {
-            currView = renderVariable(variable)
+            currView = renderVariable(variable: variable)
         } else if let expExpr = expression as? ExponentExpression {
             // TODO support complex exponent expressions
-            currView = renderSimpleExp(expExpr)
+            currView = renderSimpleExp(exp: expExpr)
         } else if let _ = expression as? Blank {
             currView = renderBlankExpression()
         } else {
             // almost fully generalized
             let prodExpr = expression as! ProductExpression
-            currView = renderProductExp(prodExpr)
+            currView = renderProductExp(prod: prodExpr)
         }
         return currView
     }
@@ -122,11 +122,11 @@ class ExpressionVC: UIViewController {
         let firstLabel = UILabel()
         firstLabel.translatesAutoresizingMaskIntoConstraints = false
         firstLabel.font = bigFont
-        firstLabel.userInteractionEnabled = true
+        firstLabel.isUserInteractionEnabled = true
         firstLabel.text = variable.letter
         let exprView = ExpressionView()
         exprView.expression = variable
-        exprView.consume(firstLabel)
+        exprView.consume(eaten: firstLabel)
         return exprView
     }
 
@@ -136,7 +136,7 @@ class ExpressionVC: UIViewController {
         firstLabel.font = bigFont
         firstLabel.text = "_"
         let exprView = ExpressionView()
-        exprView.consume(firstLabel)
+        exprView.consume(eaten: firstLabel)
         return exprView
     }
 
@@ -155,30 +155,30 @@ class ExpressionVC: UIViewController {
         var prev = container as ExpressionView
         for elem in prod.elements {
             let panner = UIPanGestureRecognizer(
-                target: self, action: "childPanned:")
-            let currView = renderExpression(elem)
+                target: self, action: Selector(("childPanned:")))
+            let currView = renderExpression(expression: elem)
             currView.productExpression = prod
-            currView.placeInParent = prod.elements.indexOf({$0 === elem})!
+            currView.placeInParent = prod.elements.index(where: {$0 === elem})
             currView.vcview = self.view
             container.addSubview(currView)
 
             container.addConstraint(NSLayoutConstraint(
-                item: currView, attribute: .Top,
-                relatedBy: .Equal,
-                toItem: prev, attribute: .Top,
+                item: currView, attribute: .top,
+                relatedBy: .equal,
+                toItem: prev, attribute: .top,
                 multiplier: 1, constant: 0))
 
             if !firstElemSet {
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "V:|[curr]-25-|",
+                container.addConstraints(NSLayoutConstraint.constraints(
+                    withVisualFormat: "V:|[curr]-25-|",
                     options: [],
                     metrics: [:],
                     views: [
                         "curr": currView
                     ])
                 )
-                container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "H:|[curr]",
+                container.addConstraints(NSLayoutConstraint.constraints(
+                    withVisualFormat: "H:|[curr]",
                     options: [],
                     metrics: [:],
                     views: [
@@ -188,9 +188,9 @@ class ExpressionVC: UIViewController {
             } else {
                 let START = CGFloat(10.0) // distance between factors in a product
                 let constraint = NSLayoutConstraint(
-                    item: currView, attribute: .Leading,
-                    relatedBy: .Equal,
-                    toItem: prev, attribute: .Trailing,
+                    item: currView, attribute: .leading,
+                    relatedBy: .equal,
+                    toItem: prev, attribute: .trailing,
                     multiplier: 1, constant: START
                 )
                 container.addConstraint(constraint)
@@ -212,45 +212,45 @@ class ExpressionVC: UIViewController {
                 indicator.start = currView.placeInParent
                 indicator.translatesAutoresizingMaskIntoConstraints = false
                 container.addSubview(indicator)
-                indicator.backgroundColor = UIColor.blueColor()
-                indicator.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-                    "V:[indicator(20)]",
+                indicator.backgroundColor = UIColor.blue
+                indicator.addConstraints(NSLayoutConstraint.constraints(
+                    withVisualFormat: "V:[indicator(20)]",
                     options: [],
                     metrics: [:],
                     views: [
                         "indicator": indicator
                     ]))
                 let verticalDistance = NSLayoutConstraint(
-                    item: indicator, attribute: .Top,
-                    relatedBy: .Equal,
-                    toItem: currView, attribute: .Bottom,
+                    item: indicator, attribute: .top,
+                    relatedBy: .equal,
+                    toItem: currView, attribute: .bottom,
                     multiplier: 1, constant: 0
                 )
                 container.addConstraint(verticalDistance)
                 indicator.verticalDistance = verticalDistance
                 let leadingDistance = NSLayoutConstraint(
-                    item: indicator, attribute: .Leading,
-                    relatedBy: .Equal,
-                    toItem: currView, attribute: .Leading,
+                    item: indicator, attribute: .leading,
+                    relatedBy: .equal,
+                    toItem: currView, attribute: .leading,
                     multiplier: 1, constant: 0
                 )
                 container.addConstraint(leadingDistance)
                 container.startedIndicator!.leadingDistance = leadingDistance
 
                 indicator.addGestureRecognizer(
-                    UIPanGestureRecognizer(target: self, action: "pannedIndicator:")
+                    UIPanGestureRecognizer(target: self, action: Selector(("pannedIndicator:")))
                 )
                 indicator.addGestureRecognizer(
-                    UITapGestureRecognizer(target: self, action: "tappedIndicator:")
+                    UITapGestureRecognizer(target: self, action: Selector(("tappedIndicator:")))
                 )
             }
 
             if elem.isEnd {
                 container.startedIndicator!.end = currView.placeInParent
                 let trailingDistance = NSLayoutConstraint(
-                    item: container.startedIndicator!, attribute: .Trailing,
-                    relatedBy: .Equal,
-                    toItem: currView, attribute: .Trailing,
+                    item: container.startedIndicator!, attribute: .trailing,
+                    relatedBy: .equal,
+                    toItem: currView, attribute: .trailing,
                     multiplier: 1, constant: 0
                 )
                 container.addConstraint(trailingDistance)
@@ -259,8 +259,8 @@ class ExpressionVC: UIViewController {
             }
         }
 
-        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "H:[last]|",
+        container.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "H:[last]|",
             options: [],
             metrics: nil,
             views: [
@@ -277,36 +277,36 @@ class ExpressionVC: UIViewController {
         container.translatesAutoresizingMaskIntoConstraints = false
         let simpleBase = exp.base as! Variable
         let baseLabel = UILabel()
-        baseLabel.userInteractionEnabled = true
+        baseLabel.isUserInteractionEnabled = true
         baseLabel.translatesAutoresizingMaskIntoConstraints = false
         baseLabel.text = simpleBase.letter
         baseLabel.font = bigFont
         let expLabel = UILabel()
         expLabel.text = String(exp.exponent)
-        expLabel.userInteractionEnabled = true
+        expLabel.isUserInteractionEnabled = true
         expLabel.translatesAutoresizingMaskIntoConstraints = false
         expLabel.font = smallFont
 
         container.addSubview(baseLabel)
         container.addSubview(expLabel)
-        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|[exp]",
+        container.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "V:|[exp]",
             options: [],
             metrics: nil,
             views: [
                 "exp": expLabel
             ])
         )
-        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|[base]|",
+        container.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "V:|[base]|",
             options: [],
             metrics: nil,
             views: [
                 "base": baseLabel
             ])
         )
-        container.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "H:|[base][exp]|",
+        container.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "H:|[base][exp]|",
             options: [],
             metrics: nil,
             views: [
@@ -316,10 +316,10 @@ class ExpressionVC: UIViewController {
         )
         let exprView = ExpressionView()
         exprView.expression = exp
-        exprView.consume(container)
+        exprView.consume(eaten: container)
 
         exprView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: "exponentTapped:")
+            UITapGestureRecognizer(target: self, action: Selector(("exponentTapped:")))
         )
 
         return exprView
@@ -345,21 +345,21 @@ class ExpressionVC: UIViewController {
     // should move this into ViewLogic file
     func childPanned(sender: UIPanGestureRecognizer) {
         let panned = sender.view as! ExpressionView
-        if sender.state == .Began {
+        if sender.state == .began {
             panned.setUpViewToDistance()
-            let newCopy = renderExpression(panned.expression)
+            let newCopy = renderExpression(expression: panned.expression)
             panned.newCopyStore = newCopy
             self.view.addSubview(newCopy)
             
             let xCnstr = NSLayoutConstraint(
-                item: newCopy, attribute: .CenterX,
-                relatedBy: .Equal,
-                toItem: panned, attribute: .CenterX,
+                item: newCopy, attribute: .centerX,
+                relatedBy: .equal,
+                toItem: panned, attribute: .centerX,
                 multiplier: 1, constant: 0)
             let yCnstr = NSLayoutConstraint(
-                item: newCopy, attribute: .CenterY,
-                relatedBy: .Equal,
-                toItem: panned, attribute: .CenterY,
+                item: newCopy, attribute: .centerY,
+                relatedBy: .equal,
+                toItem: panned, attribute: .centerY,
                 multiplier: 1, constant: 0)
             view.addConstraint(xCnstr)
             view.addConstraint(yCnstr)
@@ -368,33 +368,33 @@ class ExpressionVC: UIViewController {
             panned.yConstraint = yCnstr
             view.layoutIfNeeded()
 
-            mainHolder.hidden = true
-            tempHolder.hidden = false
+            mainHolder.isHidden = true
+            tempHolder.isHidden = false
             let mainProductExp = mainExpression as! ProductExpression
-            let place = panned.placeInParent
-            let newView = mainProductExp.moveElem(place, toBlankAt: place)
-            render(newView, holder: tempHolder)
+            let place = panned.placeInParent!
+            let newView = mainProductExp.moveElem(from: place, toBlankAt: place)
+            render(expr: newView, holder: tempHolder)
 
-        } else if sender.state == .Changed {
-            panned.xConstraint.constant = sender.translationInView(sender.view!.superview!).x
-            panned.yConstraint.constant = sender.translationInView(sender.view!.superview!).y
-            let newIndex = panned.indexForView(panned.newCopyStore!)
+        } else if sender.state == .changed {
+            panned.xConstraint.constant = sender.translation(in: sender.view!.superview!).x
+            panned.yConstraint.constant = sender.translation(in: sender.view!.superview!).y
+            let newIndex = panned.indexForView(input: panned.newCopyStore!)
             if newIndex != panned.mostRecentIndex {
                 panned.mostRecentIndex = newIndex
                 let mainProductExp = mainExpression as! ProductExpression
-                let newView = mainProductExp.moveElem(panned.placeInParent, toBlankAt:newIndex)
-                render(newView, holder: tempHolder)
+                let newView = mainProductExp.moveElem(from: panned.placeInParent, toBlankAt:newIndex)
+                render(expr: newView, holder: tempHolder)
                 
             }
             panned.myParentView.layoutIfNeeded()
 
-        } else if [.Ended, .Failed, .Cancelled].contains(sender.state) {
+        } else if [.ended, .failed, .cancelled].contains(sender.state) {
             panned.productExpression.jumpTo(
-                panned.mostRecentIndex!, from: panned.placeInParent)
-            render(mainExpression, holder: mainHolder)
+                index1: panned.mostRecentIndex!, from: panned.placeInParent)
+            render(expr: mainExpression, holder: mainHolder)
             panned.newCopyStore.removeFromSuperview()
-            mainHolder.hidden = false
-            tempHolder.hidden = true
+            mainHolder.isHidden = false
+            tempHolder.isHidden = true
             // TODO: get animation working, need to find position to animate to
         }
     }
@@ -408,13 +408,13 @@ class ExpressionVC: UIViewController {
         }
 
         switch sender.state {
-        case .Changed:
-            let yChange = sender.translationInView(parent).y
+        case .changed:
+            let yChange = sender.translation(in: parent).y
             if yChange > DRAG_LENGTH {
                 let indicator = sender.view as! IndicatorView
                 let prod = indicator.productExpressionView.expression as! ProductExpression
-                prod.contractSlice(indicator.start, end: indicator.end)
-                render(prod, holder: mainHolder)
+                prod.contractSlice(start: indicator.start, end: indicator.end)
+                render(expr: prod, holder: mainHolder)
             } else if yChange > 0 {
                 // bug / weird behavior: longer than initial width at end of drag
                 let adjustment = (yChange/DRAG_LENGTH)*indicator.initialWidth!*0.4
@@ -434,7 +434,7 @@ class ExpressionVC: UIViewController {
                     constraint.constant = 10
                 }
             }
-        case .Ended:
+        case .ended:
             indicator.verticalDistance.constant = 0
             indicator.leadingDistance.constant = 0
             indicator.trailingDistance.constant = 0
@@ -442,7 +442,7 @@ class ExpressionVC: UIViewController {
                 // put 10 as start in indicatorview class
                 constraint.constant = 10
             }
-        case .Began, .Possible, .Failed, .Cancelled:
+        case .began, .possible, .failed, .cancelled:
             break
         }
 
@@ -471,8 +471,8 @@ class ExpressionVC: UIViewController {
     func exponentTapped(sender: UITapGestureRecognizer) {
         let expressionView = sender.view as! ExpressionView
         let exponentExpression  = expressionView.expression as! ExponentExpression
-        (mainExpression as! ProductExpression).expand(exponentExpression)
-        render(mainExpression, holder: mainHolder)
+        (mainExpression as! ProductExpression).expand(elem: exponentExpression)
+        render(expr: mainExpression, holder: mainHolder)
     }
 
 }
