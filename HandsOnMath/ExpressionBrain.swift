@@ -56,7 +56,7 @@ class ExponentExpression: NSObject, UnitExpression {
 
     func dotEquals(other: UnitExpression) -> Bool {
         if let otherExp = other as? ExponentExpression {
-            return otherExp.base.dotEquals(self.base) && otherExp.exponent == self.exponent
+            return otherExp.base.dotEquals(other: self.base) && otherExp.exponent == self.exponent
         } else {
             return false
         }
@@ -75,22 +75,22 @@ class ProductExpression: NSObject, Expression {
 
     init(elems: [UnitExpression]) {
         elements = elems
-        ProductExpression.markSlices(elems)
+        ProductExpression.markSlices(elems: elems)
 
     }
 
     func to_string() -> String {
         let descs = elements.map({$0.to_string()}) as [String]
-        return descs.joinWithSeparator("•")
+        return descs.joined(separator: "•")
     }
 
     func jumpTo(index1: Int, from: Int) {
         if (index1 < elements.count) {
-            elements.insert(elements.removeAtIndex(from), atIndex: index1)
+            elements.insert(elements.remove(at: from), at: index1)
         } else {
-            elements.append(elements.removeAtIndex(from))
+            elements.append(elements.remove(at: from))
         }
-        ProductExpression.markSlices(elements)
+        ProductExpression.markSlices(elems: elements)
     }
 
     func selfWithHoleAt(index: Int) -> ProductExpression {
@@ -103,9 +103,9 @@ class ProductExpression: NSObject, Expression {
     func moveElem(from: Int, toBlankAt: Int) -> ProductExpression {
         // should I be deep copying?
         var newElems = self.elements
-        newElems.removeAtIndex(from)
+        newElems.remove(at: from)
         if (toBlankAt < newElems.count) {
-            newElems.insert(Blank(blah: ""), atIndex: toBlankAt)
+            newElems.insert(Blank(blah: ""), at: toBlankAt)
         } else {
             newElems.append(Blank(blah: ""))
         }
@@ -116,18 +116,18 @@ class ProductExpression: NSObject, Expression {
         // todo: die if not all from start to end are the same
         let base = elements[start]
         elements[start...end] = [ExponentExpression(bse: base, exp: end-start+1)]
-        ProductExpression.markSlices(elements)
+        ProductExpression.markSlices(elems: elements)
     }
 
     func expand(elem: ExponentExpression) {
-        let i = elements.indexOf({$0 === elem})!
+        let i = elements.index(where: {$0 === elem})!
         var new = [UnitExpression]()
         for _ in 0..<elem.exponent {
             // not fully generalized: should copy base, even if not a Variable
             new.append(Variable(lttr: (elem.base as! Variable).letter))
         }
-        elements.replaceRange(i...i, with: new)
-        ProductExpression.markSlices(elements)
+        elements.replaceSubrange(i...i, with: new)
+        ProductExpression.markSlices(elems: elements)
 
     }
 
@@ -143,13 +143,13 @@ class ProductExpression: NSObject, Expression {
         var prev = elems[0]
         var currStart: Int? = nil
 
-        for (i, curr) in elems.enumerate() {
+        for (i, curr) in elems.enumerated() {
             if i == 0 {
                 continue
             }
             // dotEquals is a bit of a hack
             // I should look into comparables more and implement ==
-            if curr.dotEquals(prev) {
+            if curr.dotEquals(other: prev) {
                 if currStart == nil {
                     currStart = i-1
                     elems[i-1].isStart = true

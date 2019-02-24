@@ -25,7 +25,7 @@ class ExpressionView: UIView {
     var vcview: UIView!
 
     func indexForView(input: UIView) -> Int {
-        let parentViewOrigin = myParentView.convertPoint(myParentView.frame.origin, toView: vcview)
+        let parentViewOrigin = myParentView.convert(myParentView.frame.origin, to: vcview)
         let dist = input.center.x - parentViewOrigin.x
 
         var counter = 0
@@ -45,7 +45,7 @@ class ExpressionView: UIView {
             }
         }
 
-        minXCoord = allDistances.minElement()!
+        minXCoord = allDistances.min()!
         for child in self.myParentView.subviews {
             if !(child is IndicatorView) {
                 viewToDistance[child] = child.center.x
@@ -57,16 +57,16 @@ class ExpressionView: UIView {
     func consume(eaten: UIView) {
         self.translatesAutoresizingMaskIntoConstraints = false
         self.addSubview(eaten)
-        self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "H:|[eat]|",
+        self.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "H:|[eat]|",
             options: [],
             metrics: nil,
             views: [
                 "eat": eaten
             ])
         )
-        self.addConstraints(NSLayoutConstraint.constraintsWithVisualFormat(
-            "V:|[eat]|",
+        self.addConstraints(NSLayoutConstraint.constraints(
+            withVisualFormat: "V:|[eat]|",
             options: [],
             metrics: nil,
             views: [
