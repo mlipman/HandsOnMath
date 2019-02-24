@@ -155,7 +155,8 @@ class ExpressionVC: UIViewController {
         var prev = container as ExpressionView
         for elem in prod.elements {
             let panner = UIPanGestureRecognizer(
-                target: self, action: Selector(("childPanned:")))
+                target: self, action: #selector(self.childPanned(sender:))
+            )
             let currView = renderExpression(expression: elem)
             currView.productExpression = prod
             currView.placeInParent = prod.elements.index(where: {$0 === elem})
@@ -238,10 +239,10 @@ class ExpressionVC: UIViewController {
                 container.startedIndicator!.leadingDistance = leadingDistance
 
                 indicator.addGestureRecognizer(
-                    UIPanGestureRecognizer(target: self, action: Selector(("pannedIndicator:")))
+                    UIPanGestureRecognizer(target: self, action: #selector(self.pannedIndicator(sender:)))
                 )
                 indicator.addGestureRecognizer(
-                    UITapGestureRecognizer(target: self, action: Selector(("tappedIndicator:")))
+                    UITapGestureRecognizer(target: self, action: #selector(self.tappedIndicator(sender:)))
                 )
             }
 
@@ -319,7 +320,7 @@ class ExpressionVC: UIViewController {
         exprView.consume(eaten: container)
 
         exprView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: Selector(("exponentTapped:")))
+            UITapGestureRecognizer(target: self, action: #selector(self.exponentTapped(sender:)))
         )
 
         return exprView
@@ -343,7 +344,7 @@ class ExpressionVC: UIViewController {
     */
 
     // should move this into ViewLogic file
-    func childPanned(sender: UIPanGestureRecognizer) {
+    @objc func childPanned(sender: UIPanGestureRecognizer) {
         let panned = sender.view as! ExpressionView
         if sender.state == .began {
             panned.setUpViewToDistance()
@@ -399,7 +400,7 @@ class ExpressionVC: UIViewController {
         }
     }
 
-    func pannedIndicator(sender: UIPanGestureRecognizer) {
+    @objc func pannedIndicator(sender: UIPanGestureRecognizer) {
         let DRAG_LENGTH: CGFloat = 100.0
         let indicator = sender.view as! IndicatorView
         let parent = indicator.productExpressionView
@@ -448,7 +449,7 @@ class ExpressionVC: UIViewController {
 
     }
 
-    func tappedIndicator(sender: UITapGestureRecognizer) {
+    @objc func tappedIndicator(sender: UITapGestureRecognizer) {
         // get indicator to bounce down and up, animiation not working
         /*
         let indicator = sender.view as! IndicatorView
@@ -468,7 +469,7 @@ class ExpressionVC: UIViewController {
 
     // refactor: the expression view would call expand on its parent
     // instead of assuming the global mainExpression is the parent
-    func exponentTapped(sender: UITapGestureRecognizer) {
+    @objc func exponentTapped(sender: UITapGestureRecognizer) {
         let expressionView = sender.view as! ExpressionView
         let exponentExpression  = expressionView.expression as! ExponentExpression
         (mainExpression as! ProductExpression).expand(elem: exponentExpression)
