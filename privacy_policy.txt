@@ -1,3 +1,8 @@
 The current version of HandsOnMath collects no user information.
 
-Future versions reserve the right to allow users to set up user accounts and give administrators access to monitor app usage. For the foreseeable future, this app does not and will not monitize its users at all. If that is to change, users will be notified. Any questions or requests can be sent to michael.b.lipman at gmail d0t com.
+Future versions reserve the right to allow users to set up user
+accounts and give administrators access to monitor app usage.
+For the foreseeable future, this app does not and will not
+monitize its users at all. If that is to change, users will
+be notified. Any questions or requests can be sent to
+michael.b.lipman at gmail d0t com.
